@@ -5,7 +5,6 @@
 ただし、エージェント自身は「この計画は成り立つ」と決められません。定員・期限・通行止め・本人の事情を守れているかは、決定論的な**Simulation Core**がすべて計算します。全員を守れる計画がなければ「完了」とは言わず、人に引き継ぎます。
 
 - **デモ**：https://disaster-agentic-mvp-66ttczdcza-an.a.run.app/ （ログイン不要・スマートフォン可）
-- **まず読む文書**：この README → [設計](docs/ARCHITECTURE.md) → [セキュリティ](docs/SECURITY.md)
 
 > 合成データだけを使う研究用の試作です。住民はすべて架空で、個人情報は使いません。シミュレーションの成立判定（PASS）は、現実の安全や避難判断を保証しません。避難指示や災害の予測は行いません。
 
@@ -76,15 +75,15 @@ python -m apps.cli --agent \
 
 ## 信頼できる自律性
 
-| 観点 | 仕組み | 実装 |
-|---|---|---|
-| 判定の分離 | 方策（ルール／Gemini）は状態を変えられない。道具が作った計画はすべてCoreで再検証し、成り立たない計画を「完了」にする判断は拒否する | [`packages/agents/loop.py`](packages/agents/loop.py) |
-| 制御 | 許可される行動は状態から決まる（例：FAILなら「修復」か「人へ引き継ぎ」だけ）。最大6ステップ・Gemini最大6回。最終ステップは終了系の行動だけ | 同上 |
-| 失敗時の挙動 | 許可外の行動・不正な出力・モデル障害・回数上限では、その場で止めて記録する（fail closed）。修復できなければ人へ引き継ぐ | 同上 |
-| 可観測性 | 全ステップの観測・判断・許可行動・検証結果をトレースとして返し、非公開側はCloud Loggingに構造化ログを出す | [`packages/domain/agent.py`](packages/domain/agent.py)、[`structured_log.py`](packages/services/structured_log.py) |
-| 再現性 | 同じ入力なら同じ結果。記録した判断を再生すると、観測・結果・結論まで一致することを確かめてから表示する | `replay_matches()` |
-| セキュリティ | APIキーを使わない。公開サービスはVertex AIの権限を持たない。入力は厳格な型で検査し、Geminiが返せるのはその町のIDと決められた理由だけ。送り元ごとの回数制限、CSP | [SECURITY.md](docs/SECURITY.md) |
-| 費用 | Gemini 1日40回・同時1件。Cloud Runは最小0・最大1インスタンス。請求の上限を設定 | [COST_GUARD.md](infra/cloud-run/COST_GUARD.md) |
+| 観点 | 仕組み |
+|---|---|
+| 判定の分離 | 方策（ルール／Gemini）は状態を変えられない。道具が作った計画はすべてCoreで再検証し、成り立たない計画を「完了」にする判断は拒否する |
+| 制御 | 許可される行動は状態から決まる（例：FAILなら「修復」か「人へ引き継ぎ」だけ）。最大6ステップ・Gemini最大6回。最終ステップは終了系の行動だけ |
+| 失敗時の挙動 | 許可外の行動・不正な出力・モデル障害・回数上限では、その場で止めて記録する（fail closed）。修復できなければ人へ引き継ぐ |
+| 可観測性 | 全ステップの観測・判断・許可行動・検証結果をトレースとして返し、非公開側はCloud Loggingに構造化ログを出す |
+| 再現性 | 同じ入力なら同じ結果。記録した判断を再生すると、観測・結果・結論まで一致することを確かめてから表示する |
+| セキュリティ | APIキーを使わない。公開サービスはVertex AIの権限を持たない。入力は厳格な型で検査し、Geminiが返せるのはその町のIDと決められた理由だけ。送り元ごとの回数制限、CSP |
+| 費用 | Gemini 1日40回・同時1件。Cloud Runは最小0・最大1インスタンス。請求の上限を設定 |
 
 ## 画面
 
@@ -92,7 +91,7 @@ python -m apps.cli --agent \
 |---|---|
 | [プレイ（トップ）](https://disaster-agentic-mvp-66ttczdcza-an.a.run.app/) | 川沿いの地区の住民12人。Geminiで事情を読んで計画を組み直す、メモの書き換え、報告文や地図のクリックでの通行止め、住民の入れ替えと100人での一括検算、「AIなしで比較」 |
 | [仕組みの説明（10場面）](https://disaster-agentic-mvp-66ttczdcza-an.a.run.app/slides?shot=1) | 判定・失敗理由・修復・移動の記録。[場面9](https://disaster-agentic-mvp-66ttczdcza-an.a.run.app/slides?shot=9)がエージェントの実行記録 |
-| [2D避難ラボ](https://disaster-agentic-mvp-66ttczdcza-an.a.run.app/lab) | 住民数・閉鎖率・定員などを変え、遺伝的アルゴリズムで探した避難をCanvasで再生する（AIなし、[詳細](docs/EVAC_LAB.md)） |
+| [2D避難ラボ](https://disaster-agentic-mvp-66ttczdcza-an.a.run.app/lab) | 住民数・閉鎖率・定員などを変え、遺伝的アルゴリズムで探した避難をCanvasで再生する（AIなし） |
 | [API仕様](https://disaster-agentic-mvp-66ttczdcza-an.a.run.app/api-guide) | 公開APIの一覧と `/openapi.json` |
 
 「AIなしで比較」はルール方策（AIではない）、ラボの行動案は遺伝的アルゴリズム（モデルの推論ではない）です。画面にもそう書いています。
@@ -102,43 +101,33 @@ python -m apps.cli --agent \
 依存の向きは一方向です。下の層は上の層を知りません。Simulation CoreがモデルのSDKやHTTPを読み込まないことは、テストで確かめています。
 
 ```text
-packages/domain      契約（シナリオ・計画・トレースの型）
+契約：シナリオ・計画・トレースの型
    ↑
-packages/simulation  Simulation Core：PASS/FAILを決める唯一の場所
+Simulation Core：PASS/FAILを決める唯一の場所
    ↑
-packages/redteam     道具：道路を1本ずつ閉じる弱点探索
+道具：道路を1本ずつ閉じる弱点探索
    ↑
-packages/repair      道具：修復・代替計画・一括検算
+道具：修復・代替計画・一括検算
    ↑
-packages/agents      エージェントループと方策（ルール／Gemini／再生）、Geminiによる読み取り
-                     （外部との境界 packages/services と、指示文 packages/prompts を使う）
+エージェント：ループと方策（ルール／Gemini／再生）、Geminiによる読み取り
+              （外部との境界と、版つきの指示文を使う）
    ↑
-apps/api             公開サービス（画面・API）
-apps/orchestrator_service  非公開サービス（Geminiを呼ぶのはここだけ）
+公開サービス（画面・API）／非公開サービス（Geminiを呼ぶのはここだけ）
 ```
 
 はじめて読む方は、この順がおすすめです。
 
-| 順 | ファイル | ここでわかること |
+| 順 | 読むところ | ここでわかること |
 |---|---|---|
-| 1 | [`packages/simulation/engine.py`](packages/simulation/engine.py) | 計画がどう判定されるか（通行止め・定員・期限・本人の事情） |
-| 2 | [`packages/domain/models.py`](packages/domain/models.py) | シナリオと計画の形 |
-| 3 | [`packages/agents/loop.py`](packages/agents/loop.py) | 観測 → 判断 → 実行 → 検証のループと、許可される行動のガード |
-| 4 | [`packages/repair/planner.py`](packages/repair/planner.py) | 修復：定員を考えて全員の行き先と経路を探す |
-| 5 | [`packages/agents/care_reader.py`](packages/agents/care_reader.py) | Geminiに事情メモを読ませ、答えを列挙型に絞る方法 |
-| 6 | [`apps/orchestrator_service/main.py`](apps/orchestrator_service/main.py) | Geminiを呼ぶ非公開サービスと、時間の上限 |
-| 7 | [`apps/api/live_agent.py`](apps/api/live_agent.py) | 公開サービスがGeminiの判断を再生して確かめる流れ |
-| 8 | [`packages/repair/sweep.py`](packages/repair/sweep.py) | 100人・30通りの一括検算と、足りない設備の探し方 |
-| 9 | [`apps/web/static/play.js`](apps/web/static/play.js) | 画面（外部ライブラリなしのJavaScript） |
-
-| そのほかのパス | 内容 |
-|---|---|
-| `data/demo_area/` | 合成シナリオ（基本：2名、川沿いの地区：12名と住民100人のプール） |
-| `packages/prompts/` | Geminiへの指示文（版つきのファイル） |
-| `packages/services/` | 外部との境界：呼び出し回数の上限、非公開サービスへのHTTP、構造化ログ |
-| `scripts/` | Cloud Shellで使うデプロイ・診断・記録のスクリプト |
-| `tests/`、`tests_js/` | テスト（有料のAPIもクラウドも使わない） |
-| `apps/gemma_service/`、`training/colab/` | Gemmaの推論サービスと学習ノート（今後の工程。本番には接続していない） |
+| 1 | Simulation Core | 計画がどう判定されるか（通行止め・定員・期限・本人の事情） |
+| 2 | 契約 | シナリオと計画の形 |
+| 3 | エージェントループ | 観測 → 判断 → 実行 → 検証のループと、許可される行動のガード |
+| 4 | 修復 | 定員を考えて全員の行き先と経路を探す |
+| 5 | 事情メモの読み取り | Geminiに事情メモを読ませ、答えを列挙型に絞る方法 |
+| 6 | 非公開サービス | Geminiを呼ぶ唯一の場所と、時間の上限 |
+| 7 | 公開サービス | Geminiの判断を再生して確かめる流れ |
+| 8 | 一括検算 | 100人・30通りの検算と、足りない設備の探し方 |
+| 9 | 画面 | 外部ライブラリなしのJavaScript |
 
 ## 品質
 
@@ -162,10 +151,6 @@ python -m uvicorn apps.api.main:app --host 127.0.0.1 --port 8000   # http://127.
 - 修復・代替計画は有界な探索と、定員を考えた割り当て（増加路法）で、最適性は保証しません。探索の上限に達したときは失敗として扱い、人へ引き継ぎます。
 - 2D避難ラボのJavaScriptの判定は説明用の参照実装で、判定の権威はPythonのCoreです（書き出したJSONで照合できます）。
 - Gemma 4の役割別アダプタ（Colabでの学習）は今後の工程で、本番には接続していません。
-
-## 関連文書
-
-[設計](docs/ARCHITECTURE.md) / [セキュリティの点検と本番での置き方](docs/SECURITY.md) / [費用とアクセス制限](infra/cloud-run/COST_GUARD.md) / [非公開サービスの権限](infra/cloud-run/ORCHESTRATOR_SECURITY.md) / [デプロイ](infra/cloud-run/MVP_DEPLOY.md) / [今後の工程](docs/NEXT_STEPS.md) / [提出準備](submission/README.md) / [権利とライセンス](NOTICE.md)
 
 ## リポジトリについて
 
