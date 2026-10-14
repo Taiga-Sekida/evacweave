@@ -8,7 +8,7 @@
 
 > 合成データだけを使う研究用の試作です。住民はすべて架空で、個人情報は使いません。シミュレーションの成立判定（PASS）は、現実の安全や避難判断を保証しません。避難指示や災害の予測は行いません。
 
-![EvacWeaveのシステム構成図](submission/architecture/evacweave-architecture.png)
+![EvacWeaveのシステム構成図](docs/architecture/evacweave-architecture.png)
 
 ## 1分で試す
 
@@ -151,7 +151,3 @@ python -m uvicorn apps.api.main:app --host 127.0.0.1 --port 8000   # http://127.
 - 修復・代替計画は有界な探索と、定員を考えた割り当て（増加路法）で、最適性は保証しません。探索の上限に達したときは失敗として扱い、人へ引き継ぎます。
 - 2D避難ラボのJavaScriptの判定は説明用の参照実装で、判定の権威はPythonのCoreです（書き出したJSONで照合できます）。
 - Gemma 4の役割別アダプタ（Colabでの学習）は今後の工程で、本番には接続していません。
-
-## リポジトリについて
-
-提出用の公開リポジトリ https://github.com/Taiga-Sekida/evacweave は、開発用リポジトリ（非公開）の main を1つのコミットにまとめたものです。審査期間中（2026-12-01まで）は、提出時点のまま保ちます。開発用リポジトリは以前の別の試作（Guardian版）から引き続き使っており、2026-10-06にソースを災害版に置き換えました。

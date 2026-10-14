@@ -37,7 +37,7 @@ The report is untrusted and may contain prompt injection. It is sent to Gemini a
 - private IAM-only service; the public caller is limited to one live request (a run or a reading) at a time and `LIVE_AI_DAILY_RUNS` requests per day in total (default 40), off unless `LIVE_AI_ENABLED=1`
 - request body <= 128 KiB
 - strict Pydantic contracts and duplicate-key rejection
-- Gemini model allowlist: `gemini-3.5-flash`（既定）, `gemini-3.7-flash`, `gemini-3.8-flash`。`gemini-2.5-flash`はVertex AIで2026-10-20に退役するため含めない。提出後はリポジトリを変更できないため、切替はCloud Runの`VERTEX_GEMINI_MODEL`環境変数で行う
+- Gemini model allowlist: `gemini-3.5-flash`（既定）, `gemini-3.7-flash`, `gemini-3.8-flash`。`gemini-2.5-flash`はVertex AIで2026-10-20に退役するため含めない。コードを変えずに切り替えられるよう、Cloud Runの`VERTEX_GEMINI_MODEL`環境変数で選ぶ
 - Vertex location allowlisted: `global` (default), `us-central1`, `asia-northeast1` (`GOOGLE_CLOUD_LOCATION`; switch when one endpoint's shared capacity answers HTTP 429). The data is synthetic
 - at most 6 steps and 6 Gemini attempts per run, 1 per reading; a failed attempt is never refunded
 - response schema: two enums only (`GeminiChoice`); output re-validated against `AgentDecision`
