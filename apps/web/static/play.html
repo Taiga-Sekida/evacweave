@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#09202d">
+  <meta name="description" content="EvacWeave｜状況を伝えると、Vertex AIのGeminiを使うエージェントが避難計画を立て直し、決定論的なSimulation Coreが検算します。">
+  <title>EvacWeave — 避難計画を立て直すAIエージェント</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/assets/app.css">
+  <link rel="stylesheet" href="/assets/play.css">
+  <script src="/assets/map-view.js" defer></script>
+  <script src="/assets/play.js" defer></script>
+</head>
+<body class="play-page">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="EvacWeave プレイ">
+      <span class="brand-mark" aria-hidden="true">E<span>∿</span></span>
+      <span>Evac<span class="brand-accent">Weave</span><small>避難計画の検証エージェント</small></span>
+    </a>
+    <nav class="top-links" aria-label="ページの移動">
+      <a href="/" aria-current="page">プレイ</a>
+      <a href="/slides?shot=1">仕組みの説明</a>
+      <a href="/lab">2Dラボ</a>
+      <a href="/api-guide">API仕様</a>
+    </nav>
+    <div class="top-status" id="runtime-status"><span class="pulse"></span> 環境確認中</div>
+  </header>
+
+  <main class="pl-shell">
+    <section class="pl-hero">
+      <div class="pl-hero-text">
+        <h1>一人ひとりの事情に合わせて、AIが避難先を組み直す。</h1>
+        <p>車椅子、乳児、医療機器、DVからの避難、ペット、言葉や食事。Vertex AIのGeminiが住民の事情メモと避難所の設備を読み、誰がどこを避けるべきかを判断します。エージェントが全員の計画を組み直し、定員・期限・通行止め・本人の事情を守れているかは、AIではなくSimulation Coreが計算で判定します。架空の住民100人から12人ずつ入れ替え、30通りをまとめて検算できます。</p>
+      </div>
+      <ol class="pl-flow" aria-label="処理の流れ">
+        <li><b>1</b><span>事情を読む<small>Gemini</small></span></li>
+        <li><b>2</b><span>計画を組み直す<small>Geminiエージェント</small></span></li>
+        <li><b>3</b><span>守れているか判定<small>Simulation Core</small></span></li>
+      </ol>
+    </section>
+
+    <div class="pl-grid">
+      <div class="pl-left">
+        <section class="pl-card pl-map" aria-label="地図">
+          <div class="pl-kpis" aria-live="polite">
+            <div class="pl-kpi"><span>避難できる住民</span><strong id="kpi-evac">—</strong></div>
+            <div class="pl-kpi"><span>計画の判定</span><strong id="kpi-verdict">—</strong></div>
+            <div class="pl-kpi"><span id="kpi-third-label">通行止め</span><strong id="kpi-closed">—</strong></div>
+            <div class="pl-kpi"><span>判断</span><strong id="kpi-ai">—</strong></div>
+          </div>
+          <svg class="network pl-svg" id="play-map" viewBox="0 0 720 410" role="img" aria-label="道路網と住民の位置"></svg>
+          <ul class="pl-legend" aria-label="凡例">
+            <li><i class="lg-route"></i>検証済みの経路</li>
+            <li><i class="lg-failed"></i>成り立たない経路</li>
+            <li><i class="lg-closed"></i>通行止め</li>
+            <li><i class="lg-shelter"></i>避難所</li>
+            <li><i class="lg-person"></i>住民</li>
+          </ul>
+          <div class="pl-playback">
+            <button type="button" class="play-btn" id="play" aria-label="再生">▶</button>
+            <input type="range" id="clock" min="0" max="1" step="1" value="0" aria-label="仮想時刻（秒）">
+            <span class="pl-clock"><strong id="hud-clock">—</strong><span id="hud-deadline">—</span></span>
+          </div>
+          <p class="pl-caption" id="caption">—</p>
+        </section>
+
+        <section class="pl-card pl-people" id="people-card" aria-label="住民の事情" hidden>
+          <div class="pl-card-head"><h2>住民の事情</h2><div class="pl-people-tools"><span class="pl-who" id="people-status">—</span><button type="button" class="pl-swap" id="swap">別の12人に入れ替える</button></div></div>
+          <p class="pl-fine pl-lead" id="people-lead">全員架空の住民です。番号は地図の住民と同じです。メモを書き換えると、Geminiが読み直して避難先が変わります。</p>
+          <ol class="pl-people-grid" id="people"></ol>
+        </section>
+
+        <section class="pl-card pl-sweep" id="sweep-card" aria-label="100人で一括検算" hidden>
+          <div class="pl-card-head"><h2>100人で一括検算</h2><span class="pl-who">AIなし・Simulation Coreが計算</span></div>
+          <p class="pl-fine pl-lead">架空の住民100人から12人ずつ選んだ30通りを、職員の設定と平常時の道路でまとめて検算します。全員の避難先が決まらない組み合わせには、どの避難所に何を足せば救えるかも計算します。</p>
+          <div class="sw-top"><strong id="sweep-total">—</strong><span id="sweep-sub"></span></div>
+          <div class="sw-grid" id="sweep-grid" role="group" aria-label="30通りの組み合わせ（押すとその12人に入れ替わります）"></div>
+          <p class="sw-current" id="sweep-current" aria-live="polite">—</p>
+          <h3 class="sw-h">順に足すと、救える組み合わせが増える設備</h3>
+          <ol class="sw-steps" id="sweep-steps"></ol>
+        </section>
+
+        <section class="pl-card pl-backend" aria-label="Google Cloud上の処理の流れ">
+          <div class="pl-card-head"><h2>Google Cloud上の処理の流れ</h2><span class="pl-status" id="backend-status" aria-live="polite">—</span></div>
+          <ol class="pl-hops" id="hops"></ol>
+          <p class="pl-fine" id="backend-note">—</p>
+        </section>
+      </div>
+
+      <div class="pl-right">
+        <section class="pl-card pl-input" aria-label="状況の入力">
+          <div class="pl-card-head"><h2>状況を伝える</h2><span class="pl-quota" id="quota">—</span></div>
+          <div class="pl-seg" id="stage-tabs" role="tablist" aria-label="街"></div>
+          <p class="pl-care-lead" id="care-lead" hidden>—</p>
+          <details class="pl-road-box" id="road-box">
+            <summary id="road-box-title">道路の状況も伝える（任意）</summary>
+            <input type="text" id="report" maxlength="120" autocomplete="off" aria-label="状況の報告" placeholder="例：小学校の前の道で土砂崩れ">
+            <div class="pl-samples" id="report-samples" role="group" aria-label="報告の例"></div>
+            <div class="pl-closed-row">
+              <span class="pl-or">または地図の道路をクリック</span>
+              <div class="pl-slots" id="slots" aria-label="通行止めにした道路"></div>
+            </div>
+            <details class="pl-roads">
+              <summary>道路の一覧から選ぶ</summary>
+              <div class="road-chips" id="road-chips" role="group" aria-label="通行止めにする道路"></div>
+            </details>
+          </details>
+          <button type="button" class="pl-primary" id="dispatch-gemini">Geminiで計画を立て直す</button>
+          <div class="pl-secondary">
+            <button type="button" id="dispatch">AIなしで比較</button>
+            <button type="button" id="reset">リセット</button>
+          </div>
+          <p class="pl-hint" id="hint" aria-live="polite">—</p>
+        </section>
+
+        <section class="pl-card pl-agent" aria-label="エージェントの判断">
+          <div class="pl-card-head"><h2>エージェントの判断</h2><span class="pl-who" id="agent-who">—</span></div>
+          <ol class="pl-steps" id="agent-log" aria-label="エージェントの判断の記録"></ol>
+          <div class="pl-result" id="result" hidden><span class="pl-result-tag" id="result-tag">—</span><strong id="result-title">—</strong><p id="result-text">—</p></div>
+        </section>
+      </div>
+    </div>
+    <p class="pl-foot">合成データによる研究用試作です。現実の安全や避難判断を保証しません。避難指示や災害の予測は行いません。報告文はGeminiが読むだけで、ログには文字数しか残りません。実在の災害情報や個人情報は入力しないでください。</p>
+  </main>
+</body>
+</html>

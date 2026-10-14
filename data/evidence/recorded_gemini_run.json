@@ -1,0 +1,380 @@
+{
+  "schema_version": "recorded-agent-run/v1",
+  "recorded_at": "2026-10-13T15:40:41Z",
+  "service_revision": "97a7468",
+  "trace": {
+    "schema_version": "agent-trace/v1",
+    "run_id": "3f07e68127234fbf93e42fdfabe5109d",
+    "policy": "vertex-gemini",
+    "model": "gemini-3.5-flash",
+    "prompt_version": "orchestrator/v2",
+    "limits": {
+      "max_steps": 6,
+      "max_model_calls": 6
+    },
+    "scenario_id": "blocked_route",
+    "initial_plan_id": "baseline_plan",
+    "initial_result": {
+      "schema_version": "evacuation-result/v1",
+      "engine_version": "static-network-v1",
+      "simulation_only": true,
+      "scenario_id": "blocked_route",
+      "plan_id": "baseline_plan",
+      "input_digest": "a1c710fd2fe28079843e87b3f309ac0a349cd62a3222ab665f1cd89b15dd4bf1",
+      "status": "FAIL",
+      "evacuated": [],
+      "not_evacuated": [
+        "resident_01",
+        "resident_02"
+      ],
+      "final_locations": [
+        {
+          "actor_id": "resident_01",
+          "node": "home"
+        },
+        {
+          "actor_id": "resident_02",
+          "node": "home"
+        }
+      ],
+      "events": [
+        {
+          "time_s": 0,
+          "actor_id": "resident_01",
+          "kind": "rejected",
+          "reason": "route_blocked",
+          "node": "home"
+        },
+        {
+          "time_s": 0,
+          "actor_id": "resident_02",
+          "kind": "rejected",
+          "reason": "route_blocked",
+          "node": "home"
+        }
+      ]
+    },
+    "steps": [
+      {
+        "index": 0,
+        "observation": {
+          "step": 0,
+          "steps_remaining": 6,
+          "plan_id": "baseline_plan",
+          "plan_status": "FAIL",
+          "residents": 2,
+          "evacuated": 0,
+          "rejection_reasons": [
+            "route_blocked"
+          ],
+          "repair_attempted": false,
+          "stress_tested": false,
+          "single_points_of_failure": 0,
+          "contingencies_planned": false,
+          "contingencies_covered": 0,
+          "roads_not_probed": 0,
+          "allowed_actions": [
+            "run_repair",
+            "escalate"
+          ]
+        },
+        "decision": {
+          "schema_version": "agent-decision/v1",
+          "action": "run_repair",
+          "reason_code": "plan_failed_verification"
+        },
+        "policy_error": null,
+        "effect": {
+          "status": "applied",
+          "plan_id": "auto_repair",
+          "plan_status": "PASS",
+          "input_digest": "481b12cbd366736aa8a3c42666451a30d9861c036cf84ea1f4c9de1a5026a236",
+          "probes": [],
+          "roads_not_probed": 0,
+          "contingencies": []
+        }
+      },
+      {
+        "index": 1,
+        "observation": {
+          "step": 1,
+          "steps_remaining": 5,
+          "plan_id": "auto_repair",
+          "plan_status": "PASS",
+          "residents": 2,
+          "evacuated": 2,
+          "rejection_reasons": [],
+          "repair_attempted": true,
+          "stress_tested": false,
+          "single_points_of_failure": 0,
+          "contingencies_planned": false,
+          "contingencies_covered": 0,
+          "roads_not_probed": 0,
+          "allowed_actions": [
+            "run_redteam",
+            "finish",
+            "escalate"
+          ]
+        },
+        "decision": {
+          "schema_version": "agent-decision/v1",
+          "action": "run_redteam",
+          "reason_code": "check_robustness"
+        },
+        "policy_error": null,
+        "effect": {
+          "status": "applied",
+          "plan_id": "auto_repair",
+          "plan_status": "PASS",
+          "input_digest": "481b12cbd366736aa8a3c42666451a30d9861c036cf84ea1f4c9de1a5026a236",
+          "probes": [
+            {
+              "road_id": "road_b1",
+              "status": "FAIL",
+              "not_evacuated": [
+                "resident_01",
+                "resident_02"
+              ],
+              "rejection_reasons": [
+                "route_blocked"
+              ],
+              "input_digest": "a495436ee1b8626eba93835612aeccd24bab52cc8759a036e9fadba7f9a9a771"
+            },
+            {
+              "road_id": "road_b2",
+              "status": "FAIL",
+              "not_evacuated": [
+                "resident_01",
+                "resident_02"
+              ],
+              "rejection_reasons": [
+                "route_blocked"
+              ],
+              "input_digest": "cc3604637e7a22e018741797394e62d5c8495f5357efd95d09f7a85a5e04389b"
+            }
+          ],
+          "roads_not_probed": 0,
+          "contingencies": []
+        }
+      },
+      {
+        "index": 2,
+        "observation": {
+          "step": 2,
+          "steps_remaining": 4,
+          "plan_id": "auto_repair",
+          "plan_status": "PASS",
+          "residents": 2,
+          "evacuated": 2,
+          "rejection_reasons": [],
+          "repair_attempted": true,
+          "stress_tested": true,
+          "single_points_of_failure": 2,
+          "contingencies_planned": false,
+          "contingencies_covered": 0,
+          "roads_not_probed": 0,
+          "allowed_actions": [
+            "plan_contingency",
+            "finish",
+            "escalate"
+          ]
+        },
+        "decision": {
+          "schema_version": "agent-decision/v1",
+          "action": "plan_contingency",
+          "reason_code": "cover_single_points_of_failure"
+        },
+        "policy_error": null,
+        "effect": {
+          "status": "applied",
+          "plan_id": "auto_repair",
+          "plan_status": "PASS",
+          "input_digest": "481b12cbd366736aa8a3c42666451a30d9861c036cf84ea1f4c9de1a5026a236",
+          "probes": [],
+          "roads_not_probed": 0,
+          "contingencies": [
+            {
+              "road_id": "road_b1",
+              "reason": "verified_alternative",
+              "plan": {
+                "schema_version": "evacuation-plan/v1",
+                "id": "contingency_1",
+                "intents": [
+                  {
+                    "action": "move",
+                    "actor_id": "resident_01",
+                    "shelter_id": "shelter_a",
+                    "departure_s": 120,
+                    "route": [
+                      "road_a"
+                    ]
+                  },
+                  {
+                    "action": "move",
+                    "actor_id": "resident_02",
+                    "shelter_id": "shelter_a",
+                    "departure_s": 120,
+                    "route": [
+                      "road_a"
+                    ]
+                  }
+                ]
+              },
+              "input_digest": "2b0a61a20d324b8290ef998d614afc028a6cf81200cb95b6b0c3d5559adc32c3",
+              "last_arrival_s": 180
+            },
+            {
+              "road_id": "road_b2",
+              "reason": "verified_alternative",
+              "plan": {
+                "schema_version": "evacuation-plan/v1",
+                "id": "contingency_2",
+                "intents": [
+                  {
+                    "action": "move",
+                    "actor_id": "resident_01",
+                    "shelter_id": "shelter_a",
+                    "departure_s": 120,
+                    "route": [
+                      "road_a"
+                    ]
+                  },
+                  {
+                    "action": "move",
+                    "actor_id": "resident_02",
+                    "shelter_id": "shelter_a",
+                    "departure_s": 120,
+                    "route": [
+                      "road_a"
+                    ]
+                  }
+                ]
+              },
+              "input_digest": "c64b7c090bfd25fab588eb3c574b31f1d654a1f07adac293516f7ae8955149c8",
+              "last_arrival_s": 180
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "observation": {
+          "step": 3,
+          "steps_remaining": 3,
+          "plan_id": "auto_repair",
+          "plan_status": "PASS",
+          "residents": 2,
+          "evacuated": 2,
+          "rejection_reasons": [],
+          "repair_attempted": true,
+          "stress_tested": true,
+          "single_points_of_failure": 2,
+          "contingencies_planned": true,
+          "contingencies_covered": 2,
+          "roads_not_probed": 0,
+          "allowed_actions": [
+            "finish",
+            "escalate"
+          ]
+        },
+        "decision": {
+          "schema_version": "agent-decision/v1",
+          "action": "finish",
+          "reason_code": "verified_plan_ready"
+        },
+        "policy_error": null,
+        "effect": {
+          "status": "terminal",
+          "plan_id": "auto_repair",
+          "plan_status": "PASS",
+          "input_digest": "481b12cbd366736aa8a3c42666451a30d9861c036cf84ea1f4c9de1a5026a236",
+          "probes": [],
+          "roads_not_probed": 0,
+          "contingencies": []
+        }
+      }
+    ],
+    "model_calls": 4,
+    "outcome": "verified_with_contingencies",
+    "final_plan": {
+      "schema_version": "evacuation-plan/v1",
+      "id": "auto_repair",
+      "intents": [
+        {
+          "action": "move",
+          "actor_id": "resident_01",
+          "shelter_id": "shelter_b",
+          "departure_s": 0,
+          "route": [
+            "road_b1",
+            "road_b2"
+          ]
+        },
+        {
+          "action": "move",
+          "actor_id": "resident_02",
+          "shelter_id": "shelter_b",
+          "departure_s": 0,
+          "route": [
+            "road_b1",
+            "road_b2"
+          ]
+        }
+      ]
+    },
+    "final_result": {
+      "schema_version": "evacuation-result/v1",
+      "engine_version": "static-network-v1",
+      "simulation_only": true,
+      "scenario_id": "blocked_route",
+      "plan_id": "auto_repair",
+      "input_digest": "481b12cbd366736aa8a3c42666451a30d9861c036cf84ea1f4c9de1a5026a236",
+      "status": "PASS",
+      "evacuated": [
+        "resident_01",
+        "resident_02"
+      ],
+      "not_evacuated": [],
+      "final_locations": [
+        {
+          "actor_id": "resident_01",
+          "node": "shelter_b_node"
+        },
+        {
+          "actor_id": "resident_02",
+          "node": "shelter_b_node"
+        }
+      ],
+      "events": [
+        {
+          "time_s": 0,
+          "actor_id": "resident_01",
+          "kind": "departed",
+          "reason": "route_validated",
+          "node": "home"
+        },
+        {
+          "time_s": 0,
+          "actor_id": "resident_02",
+          "kind": "departed",
+          "reason": "route_validated",
+          "node": "home"
+        },
+        {
+          "time_s": 90,
+          "actor_id": "resident_01",
+          "kind": "arrived",
+          "reason": "admitted",
+          "node": "shelter_b_node"
+        },
+        {
+          "time_s": 90,
+          "actor_id": "resident_02",
+          "kind": "arrived",
+          "reason": "admitted",
+          "node": "shelter_b_node"
+        }
+      ]
+    }
+  }
+}

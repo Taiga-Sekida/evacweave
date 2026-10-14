@@ -1,0 +1,30 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: disaster-agentic-mvp
+  annotations:
+    run.googleapis.com/maxScale: '1'
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/cpu-throttling: 'true'
+    spec:
+      # Runtime identity without any Vertex AI permission (scripts/setup_gemini_iam.sh).
+      serviceAccountName: evacweave-public-sa@physical-ai-guardian.iam.gserviceaccount.com
+      containerConcurrency: 4
+      timeoutSeconds: 90
+      containers:
+      - image: asia-northeast1-docker.pkg.dev/physical-ai-guardian/hackathon-runtime/disaster-agentic-mvp:IMAGE_TAG
+        ports:
+        - containerPort: 8080
+          name: http1
+        env:
+        - name: APP_REVISION
+          value: IMAGE_TAG
+        - name: PUBLIC_SIMULATION_ENABLED
+          value: '0'
+        resources:
+          limits:
+            cpu: '1'
+            memory: 512Mi

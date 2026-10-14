@@ -1,0 +1,83 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1600px;height:900px;font-family:"Noto Sans CJK JP","Noto Sans JP",sans-serif;background:#f4f8f8;color:#173240;padding:34px 44px;display:flex;flex-direction:column}
+.eyebrow{font-size:13px;font-weight:900;letter-spacing:.2em;color:#128678}
+h1{margin-top:6px;font-size:34px;font-weight:900;letter-spacing:-.02em}
+.sub{margin-top:6px;font-size:17px;color:#58737e;font-weight:700}
+.main{margin-top:24px;display:grid;grid-template-columns:210px 1fr 100px 560px;gap:0;align-items:stretch;flex:1}
+.zone{border-radius:18px;padding:16px 18px 18px;position:relative}
+.zone h2{font-size:18px;font-weight:900;margin-bottom:12px}
+.zone h2 small{font-weight:700;color:#5d7682;margin-left:6px;font-size:13px}
+.public{background:#fff;border:2px solid #cfe3e1}
+.private{background:#fff;border:2px solid #7cc4b8}
+.user{display:flex;flex-direction:column;justify-content:center;gap:10px;padding-right:18px}
+.box{border-radius:12px;padding:12px 14px;border:1px solid #dbe7ea;background:#f8fbfb}
+.box b{display:block;font-size:17px;font-weight:900;color:#143848}
+.box span{display:block;margin-top:4px;font-size:14px;line-height:1.6;color:#55707b}
+.box.core{background:#eef4fd;border-color:#a9c4ee}
+.box.core b{color:#1a4c9c}
+.box.ai{background:#eaf1fe;border-color:#9fbdf2}
+.box.ai b{color:#1a62d6}
+.box.verify{background:#fdf6e6;border-color:#ecd39b}
+.box.store{background:#f2f7f6}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stack{display:grid;gap:12px}
+.arrow{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:0 6px;color:#8a6f2a;font-size:13px;font-weight:900;text-align:center;line-height:1.4}
+.arrow i{font-style:normal;font-size:40px;color:#ad934c;line-height:1}
+.flow{margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:14px;font-weight:800;color:#2b5361}
+.flow span{flex-basis:100%;font-size:13px;color:#5d7682}
+.flow em{font-style:normal;white-space:nowrap;padding:6px 12px;border-radius:999px;background:#e6f3f1;border:1px solid #b9ddd6}
+.flow .ai{background:#eaf1fe;border-color:#bcd0f5;color:#1a62d6}
+.flow .core{background:#eef4fd;border-color:#bcd0f5;color:#1a4c9c}
+.bottom{margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.band{border-radius:16px;padding:12px 16px;background:#fff8ea;border:1px solid #efd9a8}
+.band.prod{background:#eef7f5;border-color:#bfe0d8}
+.band h3{font-size:16px;font-weight:900;margin-bottom:6px}
+.band p{font-size:14.5px;line-height:1.7;color:#4f6a74}
+.foot{margin-top:14px;display:flex;justify-content:space-between;font-size:12.5px;color:#6d8792}
+.user .box{background:#fff}
+</style></head><body>
+<p class="eyebrow">SYSTEM ARCHITECTURE</p>
+<h1>EvacWeave — 一人ひとりの事情を守る、検証できる避難AIエージェント</h1>
+<p class="sub">Geminiは「言葉を読む」「次の一手を選ぶ」だけ。計画が成り立つか（PASS/FAIL）は、決定論的なSimulation Coreが計算で決める。</p>
+<div class="main">
+  <div class="user">
+    <div class="box"><b>閲覧者・審査員</b><span>ブラウザ（ログイン不要）<br>事情メモの書き換え・報告文・住民の入れ替え</span></div>
+    <div class="box"><b>画面</b><span>地図・住民カード・エージェントの各ステップ・処理の流れ</span></div>
+  </div>
+  <div class="zone public">
+    <h2>公開サービス<small>Cloud Run・Vertex AIの権限なし</small></h2>
+    <div class="grid2">
+      <div class="stack">
+        <div class="box"><b>公開API（FastAPI）</b><span>厳格な型で入力を検査・本文の大きさの上限<br>送り元ごとの回数制限（429）</span></div>
+        <div class="box core"><b>Simulation Core</b><span>道路・通行止め・移動時間・定員・期限・本人の事情を計算し、PASS/FAILを判定（決定論）</span></div>
+        <div class="box"><b>道具</b><span>計画の修復・弱点探索（道路を1本ずつ閉じる）・代替計画。結果はすべてCoreが判定</span></div>
+      </div>
+      <div class="stack">
+        <div class="box verify"><b>Geminiの判断の再生検証</b><span>返ってきた判断をCoreで計算し直し、観測・結果・回数が一致したものだけ表示</span></div>
+        <div class="box"><b>100人で一括検算（AIなし）</b><span>架空の住民100人から12人ずつ30通り。足りない設備を順に試し、救える数を計算</span></div>
+        <div class="box store"><b>Cloud Storage</b><span>Geminiの1日の回数（条件付き書き込み・再起動でも戻らない）</span></div>
+      </div>
+    </div>
+    <div class="flow"><em>観測</em>→<em class="ai">判断（Gemini）</em>→<em>実行（道具）</em>→<em class="core">検証（Core）</em><span>この4つを完了まで繰り返す（最大6ステップ・成り立たない計画は「完了」にできない）</span></div>
+  </div>
+  <div class="arrow"><span>IDトークン<br>（run.invoker）</span><i>⇄</i><span>判断の記録<br>読み取り結果</span></div>
+  <div class="zone private">
+    <h2>非公開サービス<small>Cloud Run・IAMで保護</small></h2>
+    <div class="stack">
+      <div class="box ai"><b>① 事情の読み取り</b><span>事情メモ＋避難所の設備 → 誰が・どこを・どの理由で避けるか（9つの理由の列挙だけ）。名前・国籍などから推し量らない</span></div>
+      <div class="box ai"><b>② 報告の読み取り</b><span>「橋が冠水して渡れない」→ 通れない道路（その町の道路の列挙だけ）</span></div>
+      <div class="box ai"><b>③ エージェントの方策</b><span>許された手（修復・弱点探索・代替計画・完了・人へ引き継ぎ）から1つを選ぶ</span></div>
+      <div class="grid2">
+        <div class="box ai"><b>Vertex AI</b><span>Gemini 3.5 Flash<br>構造化出力・思考 低（判断は最小）</span></div>
+        <div class="box"><b>Cloud Logging</b><span>目的・時間・失敗の種類。メモの本文は残さない</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="bottom">
+  <div class="band prod"><h3>本番での置き方（設計）</h3><p>庁内の閉じたネットワーク（三層分離のLGWAN接続系）に置き、マイナンバーや氏名は持たない。AIは庁内のモデルか、Google Distributed Cloudのエアギャップ版のGemini。計画は紙・防災行政無線などの一方向の手段で届ける。</p></div>
+  <div class="band"><h3>費用と安全の上限</h3><p>Geminiは1日40回・同時1件・送り元ごとに10分6回／1日9回・全員で1時間15回。Cloud Runは最小0台・最大1台、請求の上限も設定。APIキーは使わない。今後：Gemma 4の追加学習（未接続）。</p></div>
+</div>
+<div class="foot"><span>住民はすべて架空の合成データです。シミュレーションの成立判定は、現実の安全や避難判断を保証しません。</span><span>EvacWeave / Google Cloud</span></div>
+</body></html>

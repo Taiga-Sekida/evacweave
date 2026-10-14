@@ -1,0 +1,13 @@
+{
+  "schema_version": "adapter-registry/v1",
+  "base_model": "/models/base",
+  "processor_model": "/models/processor",
+  "adapters": [
+    {"role": "resident", "adapter_id": "resident_v1", "path": "/models/adapters/resident"},
+    {"role": "shelter", "adapter_id": "shelter_v1", "path": "/models/adapters/shelter"},
+    {"role": "infrastructure", "adapter_id": "infrastructure_v1", "path": "/models/adapters/infrastructure"},
+    {"role": "information", "adapter_id": "information_v1", "path": "/models/adapters/information"},
+    {"role": "redteam", "adapter_id": "redteam_v1", "path": "/models/adapters/redteam"},
+    {"role": "repair", "adapter_id": "repair_v1", "path": "/models/adapters/repair"}
+  ]
+}

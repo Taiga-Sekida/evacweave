@@ -1,0 +1,101 @@
+{
+  "id": "nearest_school_plan",
+  "intents": [
+    {
+      "actor_id": "north_01",
+      "shelter_id": "school_shelter",
+      "route": [
+        "north_exit",
+        "school_access"
+      ]
+    },
+    {
+      "actor_id": "north_02",
+      "shelter_id": "school_shelter",
+      "route": [
+        "north_exit",
+        "school_access"
+      ]
+    },
+    {
+      "actor_id": "north_03",
+      "shelter_id": "school_shelter",
+      "route": [
+        "north_exit",
+        "school_access"
+      ]
+    },
+    {
+      "actor_id": "north_04",
+      "shelter_id": "school_shelter",
+      "route": [
+        "north_exit",
+        "school_access"
+      ]
+    },
+    {
+      "actor_id": "river_01",
+      "shelter_id": "school_shelter",
+      "route": [
+        "flooded_lane",
+        "school_access"
+      ]
+    },
+    {
+      "actor_id": "river_02",
+      "shelter_id": "school_shelter",
+      "route": [
+        "flooded_lane",
+        "school_access"
+      ]
+    },
+    {
+      "actor_id": "river_03",
+      "shelter_id": "school_shelter",
+      "route": [
+        "flooded_lane",
+        "school_access"
+      ]
+    },
+    {
+      "actor_id": "river_04",
+      "shelter_id": "school_shelter",
+      "route": [
+        "flooded_lane",
+        "school_access"
+      ]
+    },
+    {
+      "actor_id": "east_01",
+      "shelter_id": "school_shelter",
+      "route": [
+        "east_direct",
+        "school_access"
+      ]
+    },
+    {
+      "actor_id": "east_02",
+      "shelter_id": "school_shelter",
+      "route": [
+        "east_direct",
+        "school_access"
+      ]
+    },
+    {
+      "actor_id": "east_03",
+      "shelter_id": "school_shelter",
+      "route": [
+        "east_direct",
+        "school_access"
+      ]
+    },
+    {
+      "actor_id": "east_04",
+      "shelter_id": "school_shelter",
+      "route": [
+        "east_direct",
+        "school_access"
+      ]
+    }
+  ]
+}

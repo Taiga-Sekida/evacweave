@@ -1,0 +1,9 @@
+-r requirements-cloud.txt
+# Align with the current official Gemma 4 QLoRA guide; pin after the first real GPU validation.
+torch
+transformers>=5.10.1
+accelerate
+bitsandbytes
+peft>=0.19.0
+sentencepiece
+protobuf

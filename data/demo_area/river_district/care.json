@@ -1,0 +1,50 @@
+{
+  "schema_version": "care-profiles/v1",
+  "scenario": "river_district",
+  "synthetic": true,
+  "shelters": [
+    {
+      "id": "school_shelter",
+      "name": "小学校",
+      "facilities": "体育館の大部屋で、仕切りはない。入口に段差があり、スロープはない。授乳室はない。非常用発電機がある。夜間は職員が巡回し、照明もある。動物は入れない。多言語の案内板と通訳アプリの端末がある。アレルギー対応とハラール対応の非常食を備蓄している。個室はない。"
+    },
+    {
+      "id": "hall_shelter",
+      "name": "公民館",
+      "facilities": "小さな和室が3部屋。女性専用の部屋と授乳スペースがある。入口にスロープ、車椅子用トイレがある。発電機はない。夜間は管理人がいる。動物は入れない。和室の1つは礼拝や、気持ちを落ち着かせるための静かな部屋に使える。案内は日本語だけ。非常食は一般向けのみ。"
+    },
+    {
+      "id": "hill_shelter",
+      "name": "高台公園",
+      "facilities": "急な坂道を上った先の屋外テントと小さな管理棟。地面は砂利。発電機はない。照明が少なく、夜間の巡回はない。ペットと一緒に入れる区画がある。案内は日本語だけ。非常食は一般向けのみ。個室はない。"
+    }
+  ],
+  "residents": [
+    {"actor_id": "north_01", "label": "田中さん（82）", "note": "車椅子を使っている。段差や坂道は一人では越えられない。"},
+    {"actor_id": "north_02", "label": "鈴木さん（34）", "note": "生後3か月の赤ちゃんと二人。授乳とおむつ替えの場所が要る。"},
+    {"actor_id": "north_03", "label": "佐藤さん（67）", "note": "在宅で酸素濃縮器を使っている。電気が止まると命にかかわる。"},
+    {"actor_id": "north_04", "label": "伊藤さん（45）", "note": "特に配慮の必要はない。近所の人と一緒に避難する。"},
+    {"actor_id": "river_01", "label": "山本さん（29）", "note": "元夫からのDVで保護命令が出ている。元夫は公民館のそばに住んでいて、そこへ避難するかもしれない。"},
+    {"actor_id": "river_02", "label": "中村さん（16）", "note": "高校生。母親が夜勤で、一人で避難する。暗い場所で一人になるのが怖い。"},
+    {"actor_id": "river_03", "label": "小林さん（71）", "note": "柴犬と暮らしていて、置いては行けないと言っている。"},
+    {"actor_id": "river_04", "label": "加藤さん（52）", "note": "特に配慮の必要はない。"},
+    {"actor_id": "east_01", "label": "吉田さん（88）", "note": "膝が悪く、長い坂道は上れない。杖を使っている。"},
+    {"actor_id": "east_02", "label": "山田さん（38）", "note": "小学生の娘二人と避難する。避難所での盗難や、夜のトイレが心配。"},
+    {"actor_id": "east_03", "label": "佐々木さん（60）", "note": "特に配慮の必要はない。消防団の手伝いができる。"},
+    {"actor_id": "east_04", "label": "松本さん（24）", "note": "海外から来た留学生。日本語は日常会話なら話せる。"}
+  ],
+  "reviewed_restrictions": [
+    {"actor_id": "north_01", "shelter_id": "school_shelter", "reason": "step_free_access"},
+    {"actor_id": "north_01", "shelter_id": "hill_shelter", "reason": "step_free_access"},
+    {"actor_id": "north_02", "shelter_id": "school_shelter", "reason": "infant_care"},
+    {"actor_id": "north_02", "shelter_id": "hill_shelter", "reason": "infant_care"},
+    {"actor_id": "north_03", "shelter_id": "hall_shelter", "reason": "medical_power"},
+    {"actor_id": "north_03", "shelter_id": "hill_shelter", "reason": "medical_power"},
+    {"actor_id": "river_01", "shelter_id": "hall_shelter", "reason": "location_privacy"},
+    {"actor_id": "river_02", "shelter_id": "hill_shelter", "reason": "night_safety"},
+    {"actor_id": "river_03", "shelter_id": "school_shelter", "reason": "pet_companion"},
+    {"actor_id": "river_03", "shelter_id": "hall_shelter", "reason": "pet_companion"},
+    {"actor_id": "east_01", "shelter_id": "hill_shelter", "reason": "step_free_access"},
+    {"actor_id": "east_02", "shelter_id": "hill_shelter", "reason": "night_safety"}
+  ]
+}

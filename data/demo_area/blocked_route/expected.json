@@ -1,0 +1,16 @@
+{
+  "status": "FAIL",
+  "evacuated": [],
+  "not_evacuated": [
+    "resident_01",
+    "resident_02"
+  ],
+  "event_reasons": [
+    "route_blocked",
+    "route_blocked"
+  ],
+  "final_nodes": [
+    "home",
+    "home"
+  ]
+}

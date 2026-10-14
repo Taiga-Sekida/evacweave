@@ -1,0 +1,21 @@
+{
+  "id": "repaired_plan",
+  "intents": [
+    {
+      "actor_id": "resident_01",
+      "shelter_id": "shelter_b",
+      "route": [
+        "road_b1",
+        "road_b2"
+      ]
+    },
+    {
+      "actor_id": "resident_02",
+      "shelter_id": "shelter_b",
+      "route": [
+        "road_b1",
+        "road_b2"
+      ]
+    }
+  ]
+}

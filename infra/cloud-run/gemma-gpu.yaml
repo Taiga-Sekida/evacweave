@@ -1,0 +1,38 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: disaster-gemma-runtime
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: '1'
+        run.googleapis.com/cpu-throttling: 'false'
+        run.googleapis.com/gpu-zonal-redundancy-disabled: 'true'
+    spec:
+      containerConcurrency: 1
+      containers:
+      - image: asia-southeast1-docker.pkg.dev/PROJECT_ID/hackathon-runtime/disaster-gemma-runtime:IMAGE_TAG
+        ports:
+        - containerPort: 8080
+          name: http1
+        env:
+        - name: ADAPTER_REGISTRY_PATH
+          value: /models/adapter_registry.json
+        - name: GEMMA_ROLE
+          value: resident
+        - name: GEMMA_MAX_NEW_TOKENS
+          value: '256'
+        resources:
+          limits:
+            cpu: '4'
+            memory: 16Gi
+            nvidia.com/gpu: '1'
+        startupProbe:
+          failureThreshold: 1800
+          periodSeconds: 1
+          tcpSocket:
+            port: 8080
+          timeoutSeconds: 1
+      nodeSelector:
+        run.googleapis.com/accelerator: nvidia-l4

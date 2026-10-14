@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102332">
+  <meta name="description" content="EvacWeave｜合成災害シナリオを検証し、失敗理由と修正経路を可視化する試作版">
+  <title>EvacWeave — 検証可能な避難AIエージェント</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/assets/app.css">
+  <script src="/assets/map-view.js" defer></script>
+  <script src="/assets/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="EvacWeave トップ（プレイ）">
+      <span class="brand-mark" aria-hidden="true">E<span>∿</span></span>
+      <span>Evac<span class="brand-accent">Weave</span><small>避難計画の検証基盤</small></span>
+    </a>
+    <nav class="top-links" aria-label="資料の移動">
+      <a href="/">プレイ</a>
+      <a href="/slides?shot=2">実行画面</a>
+      <a href="/slides?shot=7">設計</a>
+      <a href="/slides?shot=9">エージェント</a>
+      <a href="/lab">2Dラボ</a>
+      <a href="/api-guide">API仕様</a>
+    </nav>
+    <div class="top-status" id="runtime-status"><span class="pulse"></span> 環境確認中</div>
+  </header>
+
+  <main class="shell">
+    <div class="slide-toolbar">
+      <div class="toolbar-label"><span class="eyebrow">提出資料 / EVACWEAVE</span><strong id="slide-index">02 / 10</strong></div>
+      <nav class="slide-nav" aria-label="提出画像の各場面">
+        <button type="button" data-shot="1" aria-label="画像1">01</button>
+        <button type="button" data-shot="2" aria-label="画像2">02</button>
+        <button type="button" data-shot="3" aria-label="画像3">03</button>
+        <button type="button" data-shot="4" aria-label="画像4">04</button>
+        <button type="button" data-shot="5" aria-label="画像5">05</button>
+        <button type="button" data-shot="6" aria-label="画像6">06</button>
+        <button type="button" data-shot="7" aria-label="画像7">07</button>
+        <button type="button" data-shot="8" aria-label="画像8">08</button>
+        <button type="button" data-shot="9" aria-label="画像9">09</button>
+        <button type="button" data-shot="10" aria-label="画像10">10</button>
+      </nav>
+      <div class="toolbar-hint">各場面を画像として保存できます</div>
+    </div>
+
+    <section class="slide hero-slide" id="shot-1" aria-label="プロジェクト紹介">
+      <div class="hero-decoration hero-decoration-a"></div><div class="hero-decoration hero-decoration-b"></div>
+      <div class="hero-content">
+        <span class="hero-kicker">EVACUATION × VERIFICATION</span>
+        <h1>AIの提案を、<br><em>検証できる計画</em>へ。</h1>
+        <p>生成された避難計画を、そのまま正解にしない。<br>エージェントが修復・弱点探索・代替計画までを自律的に進め、<br>そのすべてを道路・時間・定員の計算で検証する。</p>
+        <div class="hero-badges"><span>自律エージェント</span><span>決定論的な検証</span><span>代替計画まで準備</span><span>全ステップを記録・再生</span></div>
+      </div>
+      <div class="hero-panel">
+        <div class="hero-panel-head"><span>合成シナリオ / 避難経路</span><span class="hero-panel-badge">再現可能</span></div>
+        <svg id="hero-network" class="network network-dark" viewBox="0 0 720 380" role="img" aria-label="合成避難ネットワーク"></svg>
+        <div class="hero-panel-foot"><span>閉鎖経路 <b>FAIL</b></span><span class="arrow">→</span><span>代替経路 <b class="ok-text">PASS</b></span></div>
+      </div>
+      <span class="hero-corner">EvacWeave / Google Cloud</span>
+    </section>
+
+    <section class="slide" id="shot-2" aria-label="避難計画の公開画面">
+      <div class="slide-heading"><div><span class="eyebrow">01 / 公開実行画面</span><h2>その避難計画は、本当に間に合うか。</h2><p>道路の通行止め・移動時間・避難所の定員・期限を、決定論的なSimulation Coreが検算します。PASS/FAILを決めるのはAIの文章ではなく、計算です。</p></div><span class="pill pill-live">Simulation Coreの実計算</span></div>
+      <div class="plan-switch" role="group" aria-label="検算する計画">
+        <button type="button" class="plan-option" data-choose="blocked" aria-pressed="true"><span class="plan-tag">計画A・元の計画</span><strong data-bind="plan-blocked">—</strong><span class="verdict-badge" data-bind="plan-blocked-status">—</span></button>
+        <button type="button" class="plan-option" data-choose="repaired" aria-pressed="false"><span class="plan-tag">計画B・エージェントが修復</span><strong data-bind="plan-repaired">—</strong><span class="verdict-badge" data-bind="plan-repaired-status">—</span></button>
+        <button type="button" class="plan-option challenge-option" data-choose="challenge" aria-pressed="false"><span class="plan-tag">挑戦モード</span><strong>道路を壊して、エージェントを試す</strong><span class="verdict-badge play">PLAY</span></button>
+        <div class="plan-switch-note"><p>同じ道路網・同じ<data data-bind="people">—</data>名・同じ期限で比較。計画Bは、エージェントが修復ツールで作り、Coreが再検証して採用した計画です（既定の判断はルール方策で、AIではありません）。</p><button type="button" class="cta-link" data-goto="9">エージェントの全ステップを見る →</button></div>
+      </div>
+      <div class="challenge" id="challenge" hidden>
+        <div class="challenge-head"><div><strong>エージェントに挑戦</strong><span>道路を通行止めにして（地図をクリック、最大2本）、エージェントが避難計画を立て直せるか試してください。結果はすべてSimulation Coreが検証します。</span></div><div class="agent-tabs" id="challenge-scenarios" role="tablist" aria-label="挑戦する地区"></div></div>
+        <div class="road-chips" id="challenge-roads" role="group" aria-label="通行止めにする道路"></div>
+        <div class="challenge-actions"><button type="button" class="live-btn" id="challenge-run">エージェントで立て直す</button><button type="button" class="live-btn gemini-btn" id="challenge-gemini" hidden>Geminiで立て直す（ライブ）</button><span class="challenge-status" id="challenge-status" aria-live="polite">—</span></div>
+        <ol class="challenge-steps" id="challenge-steps" aria-label="エージェントの判断"></ol>
+        <div class="scoreboard" aria-label="この訪問での挑戦の記録"><span>挑戦 <b id="score-tries">—</b> 回</span><span>全員の計画を立て直した <b id="score-rebuilt">—</b></span><span>限界を人へ引き継いだ <b id="score-handed">—</b></span><span class="cheat">不成立のまま「完了」 <b id="score-cheated">—</b></span></div>
+      </div>
+      <div class="metric-row"><article class="metric-card"><span>計画の判定</span><strong data-bind="status">—</strong><small data-bind="engine">—</small></article><article class="metric-card"><span>避難できた住民</span><strong data-bind="evacuated">—</strong><small data-bind="evacuated-note">—</small></article><article class="metric-card"><span>最終到着</span><strong data-bind="arrival">—</strong><small data-bind="arrival-note">—</small></article><article class="metric-card"><span>入力ダイジェスト（SHA-256）</span><strong class="digest" data-bind="digest">—</strong><small>同じ入力なら、何度計算しても同じ結果</small></article></div>
+      <div class="console-layout">
+        <article class="panel map-panel"><div class="panel-head"><h3>道路網と避難の再生</h3><span class="tiny-chip">合成地域</span></div><svg class="network" data-network="active" viewBox="0 0 720 380" role="img" aria-label="道路網と住民の位置"></svg>
+          <div class="playback"><button type="button" class="play-btn" id="play" aria-label="再生">▶</button><input type="range" id="clock" min="0" max="1" step="1" value="0" aria-label="仮想時刻（秒）"><output class="clock" id="clock-label" for="clock">—</output></div>
+          <p class="live-caption" id="live-caption">—</p>
+        </article>
+        <article class="panel"><div class="panel-head"><h3>時間軸で検算</h3><span class="tiny-chip">道路 × 仮想時間</span></div><svg class="time-chart" id="time-chart" viewBox="0 0 640 220" role="img" aria-label="道路ごとの通行止めと移動の時間"></svg>
+          <div class="chart-legend"><span class="key-closure">通行止め</span><span class="key-move">移動</span><span class="key-refused">拒否された移動</span><span class="key-deadline">期限</span></div>
+          <div class="verdict-head"><strong data-bind="result-title">読み込み中</strong><span class="tiny-chip">Coreの判定根拠</span></div>
+          <ul class="check-list" id="check-list"></ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="slide" id="shot-3" aria-label="通行止めによる不成立">
+      <div class="slide-heading"><div><span class="eyebrow">02 / 検証結果</span><h2>道路が閉鎖されると、計画は成立しない。</h2><p>閉鎖区間と移動区間の重なりを確認し、出発を拒否します。</p></div><span class="pill pill-fail">実際の計算結果：FAIL</span></div>
+      <div class="split-layout focus-layout">
+        <article class="panel map-panel"><div class="panel-head"><h3>閉鎖された道路：<span class="mono" data-bind="blocked-road">—</span></h3><span class="tiny-chip warn-chip"><data data-bind="closure-start">—</data>〜<data data-bind="closure-end">—</data>秒 通行止め</span></div><svg class="network" data-network="blocked" viewBox="0 0 720 380" role="img" aria-label="道路閉鎖の図"></svg><p class="explain-bar"><span class="dot red-dot"></span>予定経路は閉鎖中の道路と交差するため不成立</p></article>
+        <article class="panel emphasis-fail"><div class="outcome-label">検証結果</div><strong class="outcome-value fail-text">FAIL</strong><p class="outcome-copy"><data data-bind="people">—</data>名とも避難所へ到達できません。</p><div class="big-stat"><strong><data data-bind="baseline-evacuated">—</data> <small>/ <data data-bind="people">—</data>名</small></strong><span>避難完了</span></div><div class="divider-line"></div><p class="narrative">判定は生成AIの文章ではなく、決定論的な道路・時間の検査によるものです。</p></article>
+      </div>
+    </section>
+
+    <section class="slide" id="shot-4" aria-label="移動拒否の理由">
+      <div class="slide-heading"><div><span class="eyebrow">03 / 失敗理由の追跡</span><h2>「なぜ避難できないか」を記録する。</h2><p>住民ごとに、発生時刻・処理結果・理由を追跡できます。</p></div><span class="pill pill-fail">イベント記録：実装済み</span></div>
+      <div class="panel trace-panel"><div class="panel-head"><h3>閉鎖経路の実行記録</h3><span class="tiny-chip">イベント履歴</span></div><div id="failure-trace"></div></div>
+      <div class="reason-ribbon"><div><span class="eyebrow">不成立の原因</span><strong>通行止めと移動時間の衝突</strong></div><div class="ribbon-expression"><span>通行止め <data data-bind="closure-start">—</data>–<data data-bind="closure-end">—</data>秒</span><b>∩</b><span>移動 <data data-bind="move-start">—</data>–<data data-bind="move-end">—</data>秒</span><b>≠ ∅</b></div></div>
+    </section>
+
+    <section class="slide" id="shot-5" aria-label="修正経路での成立">
+      <div class="slide-heading"><div><span class="eyebrow">04 / 改善と再検証</span><h2>別の経路なら、同じ条件でも避難できる。</h2><p>道路や期限は変えず、移動先と通過道路だけを変更した計画です。</p></div><span class="pill pill-pass">実際の計算結果：PASS</span></div>
+      <div class="split-layout focus-layout">
+        <article class="panel map-panel"><div class="panel-head"><h3>代替経路：<span class="mono" data-bind="repaired-route">—</span></h3><span class="tiny-chip ok-chip">開通している道路を使用</span></div><svg class="network" data-network="repaired" viewBox="0 0 720 380" role="img" aria-label="改善後の避難経路"></svg><p class="explain-bar"><span class="dot green-dot"></span>修正案をシミュレーション中核で再検証</p></article>
+        <article class="panel emphasis-pass"><div class="outcome-label">再検証結果</div><strong class="outcome-value pass-text">PASS</strong><p class="outcome-copy"><data data-bind="people">—</data>名とも<data data-bind="repaired-shelter">—</data>へ到着しました。</p><div class="big-stat"><strong><data data-bind="repaired-evacuated">—</data> <small>/ <data data-bind="people">—</data>名</small></strong><span>避難完了</span></div><div class="divider-line"></div><p class="narrative">到着時刻は<data data-bind="repaired-arrival-s">—</data>秒。期限<data data-bind="deadline">—</data>秒と収容人数<data data-bind="repaired-capacity">—</data>名の制約を満たします。</p></article>
+      </div>
+    </section>
+
+    <section class="slide" id="shot-6" aria-label="移動履歴と避難完了">
+      <div class="slide-heading"><div><span class="eyebrow">05 / 行動履歴</span><h2>いつ出発し、いつ避難できたのか。</h2><p>成功判定の根拠となる移動記録を、住民ごとに再現できます。</p></div><span class="pill pill-pass" data-bind="timeline-pill">—</span></div>
+      <div class="panel timeline-panel"><div class="panel-head"><h3>避難行動の時系列</h3><span class="tiny-chip">仮想時間 / 秒</span></div><div id="success-timeline"></div></div>
+      <div class="metric-row metric-row-3"><article class="metric-card"><span>出発</span><strong><data data-bind="repaired-departure-s">—</data> 秒</strong><small>住民<data data-bind="people">—</data>名</small></article><article class="metric-card"><span>到着</span><strong><data data-bind="repaired-arrival-s">—</data> 秒</strong><small><data data-bind="repaired-shelter">—</data></small></article><article class="metric-card"><span>避難期限との差</span><strong><data data-bind="margin-s">—</data> 秒</strong><small>期限<data data-bind="deadline">—</data>秒</small></article></div>
+    </section>
+
+    <section class="slide" id="shot-7" aria-label="AIと検証処理の分離">
+      <div class="slide-heading"><div><span class="eyebrow">06 / 設計思想</span><h2>判断する役割と、検証する役割を分ける。</h2><p>エージェントは自律的に動きますが、AIの出力だけで「成立」と判断しない構造です。</p></div><span class="pill pill-design">実装済みのエージェント構成</span></div>
+      <div class="architecture-panel"><div class="architecture-flow"><div class="arch-node"><span class="arch-node-tag ready">実装済み</span><strong>方策（ルール／Gemini）</strong><p>許可された行動から1つだけ選ぶ。状態は変更できない</p></div><span class="arch-arrow">→</span><div class="arch-node"><span class="arch-node-tag ready">実装済み</span><strong>ガードレール</strong><p>状態から許可行動を決める。許可外・不正出力は停止して記録</p></div><span class="arch-arrow">→</span><div class="arch-node arch-primary"><span class="arch-node-tag ready">実装済み</span><strong>道具と決定論的検証</strong><p>修復・弱点探索・代替計画。結果はすべてCoreで再検証</p></div><span class="arch-arrow">→</span><div class="arch-node"><span class="arch-node-tag ready">実装済み</span><strong>実行記録と再生</strong><p>全ステップを記録し、判断を再生すると同じ結果になる</p></div></div>
+      <div class="arch-rule"><span class="shield">✓</span><div><strong>重要な境界</strong><p>生成AIは世界状態や判定を直接書き換えられません。不成立の計画を「完了」にする判断は拒否されます。現実の安全性を保証するものではありません。</p></div></div></div>
+      <p class="footnote">Geminiは非公開サービスで、報告文の読み取りとエージェントの方策を担います。トップのプレイ画面の「Geminiで計画を立て直す」と、場面9の「Geminiでライブ実行」で非公開サービスのGeminiが判断し、この場面の既定の表示と「AIなしで比較」はルール方策です。Geminiの結果は、ライブ・記録とも、Coreで再生して一致した場合だけ表示します。住民役などのGemma専門AIは学習・評価後に接続します。</p>
+    </section>
+
+    <section class="slide" id="shot-8" aria-label="公開処理と非公開AI処理">
+      <div class="slide-heading"><div><span class="eyebrow">07 / Google Cloudとアクセス制御</span><h2>見せる処理と、守る処理を分離する。</h2><p>公開画面からAI用の認証情報を扱わせない設計です。</p></div><span class="pill pill-design">クラウド構成図</span></div>
+      <div class="security-layout">
+        <article class="security-zone public-zone"><span class="zone-tag">公開領域</span><h3>Cloud Run / 公開試作版</h3><p>画面表示・合成シナリオの実行</p><div class="security-feature">決定論的シミュレーションと再検証</div><div class="security-feature">専用サービスアカウント・Vertex AIの権限なし</div><div class="security-feature">ライブ実行は固定シナリオのみ・1日の上限・同時1件</div><div class="security-feature">報告文は1行120文字まで・ログに残さない</div><span class="zone-status">利用者登録不要・秘密情報なし</span></article>
+        <div class="security-boundary"><span>認証境界</span><strong>Cloud Run IAM</strong><span>IDトークンで呼び出し</span></div>
+        <article class="security-zone private-zone"><span class="zone-tag">非公開領域</span><h3>Cloud Run / 自律エージェント</h3><p>サービスアカウントによる認証</p><div class="security-feature">Vertex AI / Gemini 3.5 Flash が報告の読み取りと方策</div><div class="security-feature">答えは列挙型だけ（道路ID・許可された行動）</div><div class="security-feature">1実行あたり最大6ステップ・6回、読み取り1回</div><div class="security-feature">許可外の行動は停止して記録</div><span class="zone-status">Vertex AIを呼ぶ唯一のサービス</span></article>
+      </div>
+      <p class="footnote">公開サービスはVertex AIの権限を持ちません。ライブ実行では、固定の合成シナリオに限り、専用サービスアカウントのIDトークンで非公開サービスを呼び出し、返ってきた判断をSimulation Coreで再生して一致した場合だけ表示します。モデルに届く訪問者の入力は報告文1行だけで、データとして渡し、Geminiが返せるのはその街の道路IDだけです。読み取った道路は画面に表示し、その世界の計画も必ずCoreが検証します。</p>
+    </section>
+
+    <section class="slide" id="shot-9" aria-label="自律エージェントの実行記録">
+      <div class="slide-heading"><div><span class="eyebrow">08 / 自律エージェント</span><h2>観測し、判断し、実行し、検証する。</h2><p>失敗した計画を修復し、弱点を探し、代替計画まで用意して止まります。判断は許可された行動からだけ選ばれ、結果はすべてSimulation Coreが再検証します。</p></div><span class="pill pill-design" id="agent-source-pill">ルール方策で実行・AIではありません</span></div>
+      <div class="agent-toolbar"><div class="agent-tabs" id="scenario-tabs" role="tablist" aria-label="シナリオ"></div><div class="agent-tabs" role="tablist" aria-label="判断の担い手"><button type="button" role="tab" data-trace="rule" aria-selected="true">ルール方策（公開画面で実行）</button><button type="button" role="tab" data-trace="gemini" aria-selected="false" hidden>Gemini（記録・再生検証済み）</button></div><span class="agent-note" id="agent-note">—</span></div>
+      <div class="live-bar" id="live-bar" hidden><button type="button" class="live-btn" id="live-run">▶ Geminiでライブ実行</button><div class="live-text"><strong id="live-status" aria-live="polite">—</strong><span id="live-detail">—</span></div></div>
+      <ol class="agent-steps" id="agent-steps" aria-label="実行ステップ"></ol>
+      <div class="agent-outcome" id="agent-outcome"><span class="eyebrow">結果</span><strong data-bind="agent-outcome">—</strong><span data-bind="agent-meta">—</span></div>
+      <div class="handover" id="handover" hidden></div>
+      <div class="panel contingency-panel"><div class="panel-head"><h3>単一道路の閉鎖と代替計画</h3><span class="tiny-chip">閉鎖した世界で再検証</span></div><div id="contingency-list" class="contingency-grid"></div></div>
+    </section>
+
+    <section class="slide" id="shot-10" aria-label="追加学習と運用の構想">
+      <div class="slide-heading"><div><span class="eyebrow">09 / 次の開発段階</span><h2>役割ごとのAIを、学習して組み合わせる。</h2><p>Google Colabによる追加学習から、クラウド上の推論へつなぐ計画です。</p></div><span class="pill pill-plan">将来構想・未本番接続</span></div>
+      <div class="training-flow"><article><span class="flow-number">01</span><h3>Google Colab</h3><p>合成データを用いたGemma 4の追加学習</p><span class="mini-state">学習ノート作成済み</span></article><span class="arch-arrow">→</span><article><span class="flow-number">02</span><h3>役割別の学習成果</h3><p>住民・避難所・情報などのモデルを分離</p><span class="mini-state planned">学習・評価はこれから</span></article><span class="arch-arrow">→</span><article><span class="flow-number">03</span><h3>非公開GPU推論</h3><p>Cloud Runで検証された意図を受け渡し</p><span class="mini-state planned">本番接続前</span></article></div>
+      <div class="future-roles"><span>住民</span><span>避難所</span><span>インフラ</span><span>情報提供</span><span>弱点探索</span><span>修復</span></div>
+      <div class="arch-rule"><span class="shield">→</span><div><strong>今後の実装方針</strong><p>生成能力と成立性の判定を独立させたまま、学習成果・推論結果・検証記録を追跡可能にします。</p></div></div>
+    </section>
+
+    <footer class="screen-footer"><span>EvacWeave — 検証可能な避難AIエージェント</span><span>合成シナリオによる研究用試作／現実の安全や避難判断を保証しません。</span><span id="revision"></span></footer>
+  </main>
+</body>
+</html>

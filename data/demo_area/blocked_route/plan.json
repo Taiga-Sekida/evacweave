@@ -1,0 +1,19 @@
+{
+  "id": "baseline_plan",
+  "intents": [
+    {
+      "actor_id": "resident_01",
+      "shelter_id": "shelter_a",
+      "route": [
+        "road_a"
+      ]
+    },
+    {
+      "actor_id": "resident_02",
+      "shelter_id": "shelter_a",
+      "route": [
+        "road_a"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+name: ci
+on:
+  push:
+    branches: [main, 'feat/**', 'chore/**', 'claude/**']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  contracts-and-simulation:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m pip install -r requirements-dev.txt
+      - name: Lint and format
+        run: |
+          python -m ruff check .
+          python -m ruff format --check .
+      - name: Type check (strict)
+        run: python -m mypy
+      - name: Tests with coverage gate
+        run: python -m pytest -q --cov
+      - name: Browser lab tests and Python Core parity
+        run: |
+          node --test tests_js/*.test.mjs
+          node tests_js/export-lab-fixture.mjs /tmp/evacweave_lab.json
+          python scripts/check_lab_export.py /tmp/evacweave_lab.json
+      - run: python -m compileall -q apps packages scripts
+      - run: python scripts/export_schema.py
+      - run: python -m json.tool models/adapter_registry.example.json > /dev/null
+      - run: python -m json.tool training/colab/train_role_adapter.ipynb > /dev/null
+      - run: node --check apps/web/static/app.js
+      - run: bash -n scripts/deploy_cloud_run_mvp.sh scripts/deploy_cloud_run_orchestrator.sh scripts/apply_cloud_run_limits.sh

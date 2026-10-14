@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102332">
+  <meta name="description" content="EvacWeave 公開APIの一覧。合成データを決定論的に検証する読み取り中心のエンドポイント">
+  <title>EvacWeave — API仕様</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="EvacWeave トップ（プレイ）">
+      <span class="brand-mark" aria-hidden="true">E<span>∿</span></span>
+      <span>Evac<span class="brand-accent">Weave</span><small>避難計画の検証基盤</small></span>
+    </a>
+    <nav class="top-links" aria-label="資料の移動">
+      <a href="/">プレイ</a>
+      <a href="/slides?shot=2">実行画面</a>
+      <a href="/slides?shot=7">設計</a>
+      <a href="/slides?shot=9">エージェント</a>
+      <a href="/lab">2Dラボ</a>
+      <a href="/api-guide" aria-current="page">API仕様</a>
+    </nav>
+  </header>
+
+  <main class="shell api-shell">
+    <section class="slide active api-page" aria-label="公開APIの一覧">
+      <div class="slide-heading">
+        <div>
+          <span class="eyebrow">公開API / EVACWEAVE</span>
+          <h2>公開APIの一覧</h2>
+          <p>応答は、同梱の合成データを決定論的Simulation Coreで計算した結果です。公開サービス自身はGeminiやGemmaを呼び出しません。<span class="mono">POST /v1/agent/read</span> と <span class="mono">POST /v1/agent/live</span> だけは、IAMで保護した非公開サービスにGeminiでの処理を依頼し、返ってきた答えをここで確かめてから返します。</p>
+        </div>
+        <span class="pill pill-design">合成データのみ</span>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>エンドポイント</h3><span class="tiny-chip">認証不要・読み取り中心</span></div>
+        <table class="api-table">
+          <thead><tr><th scope="col">メソッド</th><th scope="col">パス</th><th scope="col">内容</th></tr></thead>
+          <tbody>
+            <tr><td><span class="method">GET</span></td><td class="mono">/health</td><td>稼働確認。<span class="mono">status</span>、サービス名、デプロイ版(<span class="mono">revision</span>)を返します。</td></tr>
+            <tr><td><span class="method">GET</span></td><td class="mono">/v1/showcase</td><td>公開画面が表示する証拠一式。ルール方策で実行したエージェントの全ステップ（修復・弱点探索・代替計画）を基本シナリオと川沿いの地区（<span class="mono">more_runs</span>）について含み、再生検証に通った場合のみGeminiの実行記録も含みます。<span class="mono">live_ai_used</span>は常に<span class="mono">false</span>です。</td></tr>
+            <tr><td><span class="method post">POST</span></td><td class="mono">/v1/agent/challenge</td><td>固定の合成シナリオの道路を1〜2本、全時間通行止めにして（<span class="mono">{"scenario":"base","closed_roads":["road_b1"]}</span>）、ルール方策のエージェントに立て直させます。閉鎖した世界と、Simulation Coreで検証した全ステップを返します。組合せは有限なので結果をキャッシュします。課金なし。</td></tr>
+            <tr><td><span class="method post">POST</span></td><td class="mono">/v1/agent/read</td><td>状況報告の読み取り（<span class="mono">{"scenario":"river_district","report":"橋が冠水して渡れない"}</span>、120文字以内の1行）。非公開サービスでVertex AIのGeminiが報告を読み、通れない道路をその街の道路の中から最大2本選びます（回答の型は道路IDの列挙だけ）。公開サービスでも道路IDを確かめてから返します。読み取りだけで計画は変わりません。<strong>課金を伴うため既定で無効</strong>（503）。1回の読み取りは1日の回数に1回と数えます。</td></tr>
+            <tr><td><span class="method">GET</span></td><td class="mono">/v1/agent/care</td><td>住民の事情メモと避難所の設備（<span class="mono">?scenario=river_district&amp;pattern=0</span>）。架空の住民12人の短いメモと、3か所の避難所の設備の説明、職員が同じメモから設定した場合の条件（比較用）を返します。<span class="mono">pattern</span>（0〜29）を変えると、架空の住民100人から選んだ別の12人が同じ家に住みます（0は元の12人）。住民の項目は名前・年齢・本人の言葉のメモだけで、出身・国籍・宗教などの項目はありません。</td></tr>
+            <tr><td><span class="method">GET</span></td><td class="mono">/v1/agent/care/sweep</td><td>100人で一括検算（<span class="mono">?scenario=river_district</span>）。30通りの組み合わせそれぞれを、職員の設定と平常時の道路でSimulation Coreが検算し、全員の避難先が決まるか、決まらない理由（事情に合う避難所がない人・定員不足・経路不足）を返します。さらに、避難所1か所に設備を1つ足す（その理由の条件を外す）か定員を2人増やした場合に救える組み合わせと、順に足したときの効果を返します。<strong>AIは使いません</strong>（決定論で計算し、結果は保持して使い回します）。</td></tr>
+            <tr><td><span class="method post">POST</span></td><td class="mono">/v1/agent/care</td><td>事情メモの読み取り（<span class="mono">{"scenario":"river_district","pattern":0,"notes":[{"actor_id":"north_01","note":"車椅子を使っている"}]}</span>、書き換えたメモだけ送る。1件100文字以内の1行）。非公開サービスでVertex AIのGeminiがメモと設備を読み、住民ごとに避けるべき避難所と理由を返します（回答の型は住民ID・避難所ID・決められた理由の列挙だけ）。公開サービスでもIDを確かめてから返します。返った条件を <span class="mono">restrictions</span> として <span class="mono">/v1/agent/live</span>・<span class="mono">/v1/agent/challenge</span> に渡すと、計画はその条件を守って作られ、Simulation Coreが守れているかを判定します。<strong>課金を伴うため既定で無効</strong>（503）。1回の読み取りは1日の回数に1回と数えます。</td></tr>
+            <tr><td><span class="method">GET</span></td><td class="mono">/v1/agent/live</td><td>Geminiのライブ実行の状態。有効か、実行中か、1日の上限と本日の残り回数を返します。</td></tr>
+            <tr><td><span class="method post">POST</span></td><td class="mono">/v1/agent/live</td><td>固定の合成シナリオ（<span class="mono">{"scenario":"base"}</span> または <span class="mono">"river_district"</span>。<span class="mono">closed_roads</span> で道路を1〜2本閉鎖した世界も可）で、Vertex AIのGeminiを方策とするエージェントを1回実行します。公開サービスはIAM認証で非公開サービスを呼び出し、返ってきた判断をSimulation Coreで再生して、結果が完全に一致した場合だけ返します。<strong>課金を伴うため既定で無効</strong>（503）。同時実行は1件（429）、1日の回数上限あり（429）。</td></tr>
+            <tr><td><span class="method">GET</span></td><td class="mono">/v1/demo/blocked</td><td>道路閉鎖を通る基準計画の検証結果(FAIL)。</td></tr>
+            <tr><td><span class="method">GET</span></td><td class="mono">/v1/demo/repaired</td><td>開通している道路だけを使う修正計画の検証結果(PASS)。</td></tr>
+            <tr><td><span class="method post">POST</span></td><td class="mono">/v1/simulate</td><td>任意の合成シナリオと計画の検証。厳格なJSON、64 KiB、計算量の上限つき。<strong>公開サービスでは既定で無効</strong>で、403を返します。</td></tr>
+            <tr><td><span class="method">GET</span></td><td class="mono"><a href="/openapi.json">/openapi.json</a></td><td>機械可読なOpenAPI定義。</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel api-example">
+        <div class="panel-head"><h3>呼び出し例</h3><span class="tiny-chip">curl</span></div>
+        <pre><code>curl -s &lt;公開URL&gt;/health
+curl -s &lt;公開URL&gt;/v1/demo/blocked
+curl -s &lt;公開URL&gt;/v1/showcase</code></pre>
+        <p class="narrative">PASS/FAILは合成シナリオ上の成立性だけを表し、現実の安全や避難判断を保証しません。</p>
+      </div>
+    </section>
+
+    <footer class="screen-footer"><span>EvacWeave — 検証可能な避難AIエージェント</span><span>合成シナリオによる研究用試作／現実の安全や避難判断を保証しません。</span></footer>
+  </main>
+</body>
+</html>

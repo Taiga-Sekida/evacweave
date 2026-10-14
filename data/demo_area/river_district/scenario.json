@@ -1,0 +1,168 @@
+{
+  "id": "river_district",
+  "dataset_version": "synthetic_district_v1",
+  "deadline_s": 600,
+  "nodes": [
+    "north_homes",
+    "river_homes",
+    "east_homes",
+    "center",
+    "bridge",
+    "hill_foot",
+    "school",
+    "hall",
+    "hill_park"
+  ],
+  "roads": [
+    {
+      "id": "north_exit",
+      "source": "north_homes",
+      "target": "center",
+      "travel_time_s": 60,
+      "closures": []
+    },
+    {
+      "id": "flooded_lane",
+      "source": "river_homes",
+      "target": "center",
+      "travel_time_s": 90,
+      "closures": [
+        {
+          "start_s": 0,
+          "end_s": 600
+        }
+      ]
+    },
+    {
+      "id": "river_path",
+      "source": "river_homes",
+      "target": "bridge",
+      "travel_time_s": 40,
+      "closures": []
+    },
+    {
+      "id": "river_bridge",
+      "source": "bridge",
+      "target": "center",
+      "travel_time_s": 50,
+      "closures": [
+        {
+          "start_s": 300,
+          "end_s": 600
+        }
+      ]
+    },
+    {
+      "id": "east_direct",
+      "source": "east_homes",
+      "target": "center",
+      "travel_time_s": 100,
+      "closures": []
+    },
+    {
+      "id": "east_lane",
+      "source": "east_homes",
+      "target": "hill_foot",
+      "travel_time_s": 70,
+      "closures": []
+    },
+    {
+      "id": "school_access",
+      "source": "center",
+      "target": "school",
+      "travel_time_s": 40,
+      "closures": []
+    },
+    {
+      "id": "hall_access",
+      "source": "center",
+      "target": "hall",
+      "travel_time_s": 80,
+      "closures": []
+    },
+    {
+      "id": "center_to_hill",
+      "source": "center",
+      "target": "hill_foot",
+      "travel_time_s": 50,
+      "closures": []
+    },
+    {
+      "id": "hill_road",
+      "source": "hill_foot",
+      "target": "hill_park",
+      "travel_time_s": 60,
+      "closures": []
+    }
+  ],
+  "shelters": [
+    {
+      "id": "school_shelter",
+      "node": "school",
+      "capacity": 5,
+      "opens_at_s": 0
+    },
+    {
+      "id": "hall_shelter",
+      "node": "hall",
+      "capacity": 4,
+      "opens_at_s": 0
+    },
+    {
+      "id": "hill_shelter",
+      "node": "hill_park",
+      "capacity": 8,
+      "opens_at_s": 240
+    }
+  ],
+  "personas": [
+    {
+      "id": "north_01",
+      "start_node": "north_homes"
+    },
+    {
+      "id": "north_02",
+      "start_node": "north_homes"
+    },
+    {
+      "id": "north_03",
+      "start_node": "north_homes"
+    },
+    {
+      "id": "north_04",
+      "start_node": "north_homes"
+    },
+    {
+      "id": "river_01",
+      "start_node": "river_homes"
+    },
+    {
+      "id": "river_02",
+      "start_node": "river_homes"
+    },
+    {
+      "id": "river_03",
+      "start_node": "river_homes"
+    },
+    {
+      "id": "river_04",
+      "start_node": "river_homes"
+    },
+    {
+      "id": "east_01",
+      "start_node": "east_homes"
+    },
+    {
+      "id": "east_02",
+      "start_node": "east_homes"
+    },
+    {
+      "id": "east_03",
+      "start_node": "east_homes"
+    },
+    {
+      "id": "east_04",
+      "start_node": "east_homes"
+    }
+  ]
+}

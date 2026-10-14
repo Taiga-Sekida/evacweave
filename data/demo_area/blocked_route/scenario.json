@@ -1,0 +1,59 @@
+{
+  "id": "blocked_route",
+  "dataset_version": "synthetic_demo_v1",
+  "deadline_s": 180,
+  "nodes": [
+    "home",
+    "junction",
+    "shelter_a_node",
+    "shelter_b_node"
+  ],
+  "roads": [
+    {
+      "id": "road_a",
+      "source": "home",
+      "target": "shelter_a_node",
+      "travel_time_s": 60,
+      "closures": [
+        {
+          "start_s": 0,
+          "end_s": 120
+        }
+      ]
+    },
+    {
+      "id": "road_b1",
+      "source": "home",
+      "target": "junction",
+      "travel_time_s": 40
+    },
+    {
+      "id": "road_b2",
+      "source": "junction",
+      "target": "shelter_b_node",
+      "travel_time_s": 50
+    }
+  ],
+  "shelters": [
+    {
+      "id": "shelter_a",
+      "node": "shelter_a_node",
+      "capacity": 2
+    },
+    {
+      "id": "shelter_b",
+      "node": "shelter_b_node",
+      "capacity": 2
+    }
+  ],
+  "personas": [
+    {
+      "id": "resident_01",
+      "start_node": "home"
+    },
+    {
+      "id": "resident_02",
+      "start_node": "home"
+    }
+  ]
+}

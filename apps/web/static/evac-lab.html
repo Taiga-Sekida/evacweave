@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="合成災害での住民エージェントの2D動作と遺伝的アルゴリズムによる避難計画を検証するEvacWeaveラボ。" />
+  <title>EvacWeave | 2D 避難ラボ</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="/assets/evac-lab.css" />
+</head>
+<body>
+  <header class="masthead">
+    <div class="brand"><div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+      <div><strong>EvacWeave <span class="brand-sub">LAB</span></strong><small>Agent-based Evacuation Simulator</small></div>
+    </div>
+    <div class="top-right"><span class="pill pilot"><i></i> SYNTHETIC SANDBOX</span><span class="header-note">クラウドAI呼び出しなし · ブラウザ内で実行</span><a class="home-link" href="/" title="EvacWeave本体に戻る">本体へ ↗</a></div>
+  </header>
+  <main class="workspace">
+    <aside class="control-panel panel">
+      <div class="section-head"><span class="micro">CONTROL DECK / 01</span><h2>環境とアルゴリズム</h2><p>パラメータを変更後、再計画を実行します。道路をクリックして手動閉鎖することもできます。</p></div>
+      <div class="select-grid">
+        <label>災害タイプ<select id="disaster"><option value="flood">洪水・浸水</option><option value="earthquake">地震・建物被害</option></select></label>
+        <label>意思決定方式<select id="strategy"><option value="ga">遺伝的アルゴリズム (GA)</option><option value="greedy">最短経路 (閉鎖未考慮)</option></select></label>
+      </div>
+      <div class="divider-label"><span>01 · 環境パラメータ</span></div>
+      <div class="range-grid">
+        <label class="parameter"><span>住民数 <output for="people" id="people-val">20 人</output></span><input type="range" id="people" min="2" max="48" step="1" value="20" /></label>
+        <label class="parameter"><span>道路閉鎖率 <output for="closurePercent" id="closurePercent-val">17 %</output></span><input type="range" id="closurePercent" min="0" max="55" step="1" value="17" /></label>
+        <label class="parameter"><span>避難所定員 / 施設 <output for="shelterCapacity" id="shelterCapacity-val">12 人</output></span><input type="range" id="shelterCapacity" min="1" max="40" step="1" value="12" /></label>
+        <label class="parameter"><span>避難期限 <output for="deadline" id="deadline-val">140 秒</output></span><input type="range" id="deadline" min="35" max="300" step="5" value="140" /></label>
+        <label class="parameter"><span>最大反応時間 <output for="reactionMax" id="reactionMax-val">22 秒</output></span><input type="range" id="reactionMax" min="0" max="80" step="2" value="22" /></label>
+      </div>
+      <div class="divider-label"><span>02 · GA チューニング</span></div>
+      <div id="gaControls" class="range-grid">
+        <label class="parameter"><span>個体数 <output for="population" id="population-val">44</output></span><input type="range" id="population" min="8" max="100" step="4" value="44" /></label>
+        <label class="parameter"><span>世代数 <output for="generations" id="generations-val">48</output></span><input type="range" id="generations" min="4" max="140" step="4" value="48" /></label>
+        <label class="parameter"><span>突然変異率 <output for="mutation" id="mutation-val">13 %</output></span><input type="range" id="mutation" min="0" max="0.5" step="0.01" value="0.13" /></label>
+        <label class="parameter"><span>危険回避重み <output for="riskWeight" id="riskWeight-val">1.4</output></span><input type="range" id="riskWeight" min="0" max="5" step="0.1" value="1.4" /></label>
+      </div>
+      <div class="divider-label"><span>03 · 再現性 / 再生</span></div>
+      <div class="compact-grid">
+        <label>乱数シード<input type="number" min="1" max="2147483647" id="seed" value="2026" /></label>
+        <label>再生速度<select id="speed"><option value="0.5">0.5 ×</option><option value="1">1 ×</option><option value="1.6" selected>1.6 ×</option><option value="3">3 ×</option><option value="5">5 ×</option></select></label>
+      </div>
+      <button type="button" class="primary" id="runBtn"><span class="btn-symbol">↻</span> 環境生成・経路探索</button>
+      <div class="control-actions"><button type="button" id="testBtn" class="outline">✓ 自動テスト</button><button type="button" id="exportBtn" class="outline">↓ JSON保存</button></div>
+      <p class="cost-note">すべてローカル計算。GAは最適化手法であり、Gemmaの学習済み推論結果ではありません。</p>
+    </aside>
+
+    <section class="center-column">
+      <div class="pipeline panel" aria-label="シミュレーション工程">
+        <div class="pipeline-head"><span class="micro">LIVE PIPELINE / 1 — 4</span><strong>4つの処理工程</strong></div>
+        <div class="steps">
+          <div class="step"><div class="step-index">01</div><div><b>合成災害データ</b><small>道路・住民・避難所</small></div></div>
+          <div class="step-arrow">→</div>
+          <div class="step"><div class="step-index">02</div><div><b>行動候補の探索</b><small>GA / 最短経路</small></div></div>
+          <div class="step-arrow">→</div>
+          <div class="step"><div class="step-index">03</div><div><b>MoveIntent</b><small>行動指示をJSON化</small></div></div>
+          <div class="step-arrow">→</div>
+          <div class="step"><div class="step-index">04</div><div><b>JS参照判定</b><small>閉鎖・定員・期限を検証（Python Coreで照合可）</small></div></div>
+        </div>
+        <div class="role-cluster" aria-label="専門エージェントの役割一覧">
+          <span class="cluster-label">ROLE CLUSTER · 実推論は未接続</span>
+          <div class="cluster-grid">
+            <span class="role active"><b>住民</b><small>GAで代替実行</small></span>
+            <span class="role rule"><b>避難所</b><small>定員を規則検証</small></span>
+            <span class="role rule"><b>道路</b><small>合成閉鎖データ</small></span>
+            <span class="role idle"><b>情報</b><small>今後の接続</small></span>
+            <span class="role idle"><b>弱点探索</b><small>場面9で実装・ラボ未接続</small></span>
+            <span class="role idle"><b>修復</b><small>場面9で実装・ラボ未接続</small></span>
+          </div>
+        </div>
+      </div>
+      <div class="map-panel panel">
+        <div class="map-header">
+          <div><span class="micro">INTERACTIVE 2D WORLD</span><h2>住民エージェントの避難行動</h2></div>
+          <div class="map-meta"><span id="incidentBadge">浸水シナリオ</span><span id="stageBadge" class="stage-ready">READY</span></div>
+        </div>
+        <div class="map-wrap"><canvas id="map" width="1000" height="600" aria-label="2Dで動く住民、道路、閉鎖区間、避難所の合成地図"></canvas>
+          <div class="map-hint">道路をクリック：閉鎖 / 解除</div>
+          <div class="map-legend"><span><i class="dot human"></i> 住民</span><span><i class="dot safe"></i> 避難完了</span><span><i class="line-road"></i> 通行可</span><span><i class="line-closed"></i> 通行止め</span><span><i class="dot hazard"></i> 被災エリア</span></div>
+        </div>
+        <div class="player">
+          <button type="button" id="playBtn" class="play-btn" aria-label="再生 / 一時停止">▶</button>
+          <button type="button" id="restartBtn" class="icon-btn" title="先頭に戻る" aria-label="先頭に戻る">↺</button>
+          <label class="timeline"><span class="sr-only">時刻</span><input type="range" id="timeSlider" min="0" max="140" step="0.1" value="0" /></label>
+          <span class="time-count" id="timeLabel">00:00 / 02:20</span>
+        </div>
+        <div id="simMessage" role="status" class="sim-message">初期環境を構築しています…</div>
+      </div>
+      <div class="bottom-row">
+        <div class="panel evolution-panel"><div class="mini-title"><span>世代別の探索評価</span><strong id="generationLabel">—</strong></div><canvas id="fitnessCanvas" width="520" height="105" aria-label="GAの評価値が世代で変化する折れ線図"></canvas></div>
+        <div class="panel comparison-panel"><div class="mini-title"><span>同一条件での比較</span><strong>GA vs 最短経路</strong></div><div class="compare-track"><span>GA</span><div class="track"><i id="gaBar"></i></div><b id="gaCount">—</b></div><div class="compare-track"><span>最短</span><div class="track"><i id="greedyBar"></i></div><b id="greedyCount">—</b></div><p>最短経路は閉鎖・定員を考慮しない比較用ベースライン。</p></div>
+      </div>
+    </section>
+
+    <aside class="inspector panel">
+      <div class="section-head"><span class="micro">VERIFICATION / 04</span><h2>検証・証拠ログ</h2><p>生成された行動案は、モデルの推測とは独立したイベント規則で採否を判定します。</p></div>
+      <div class="verdict" id="verdict"><span class="verdict-label">判定結果</span><strong id="verdictValue">—</strong><small id="verdictDesc">計算前</small></div>
+      <div class="stat-row"><div><span>避難成功</span><strong id="evacCount">—</strong></div><div><span>未避難</span><strong id="failedCount">—</strong></div><div><span>平均到着</span><strong id="averageArrival">—</strong></div></div>
+      <div class="info-block"><div class="info-title"><span>避難所の受け入れ数</span><small>CAPACITY</small></div><div id="shelterUsage" class="shelter-usage"></div></div>
+      <div class="info-block"><div class="info-title"><span>MoveIntent / 抜粋</span><button class="text-btn" id="copyBtn">コピー</button></div><pre id="jsonPreview" tabindex="0" aria-label="行動案JSON">計算中…</pre></div>
+      <div class="info-block"><div class="info-title"><span>行動イベントログ</span><small id="eventCount">0 EVENTS</small></div><div id="eventLog" class="event-list" aria-live="polite"></div></div>
+      <div class="info-block"><div class="info-title"><span>テスト結果</span><small id="testSummary">未実施</small></div><div class="test-list" id="testList"><p class="placeholder">左の「自動テスト」で境界条件と再現性を検査できます。</p></div></div>
+    </aside>
+  </main>
+  <footer class="footnote">EvacWeave LAB • 合成データ専用・研究用の概念実証。人の行動は仮定したルールであり、実際の避難行動を予測しません。<strong>実災害の避難判断には使用しないでください。</strong> Python本体のCoreとは独立したブラウザ版リファレンス実装です。</footer>
+  <script type="module" src="/assets/evac-lab-app.mjs"></script>
+</body>
+</html>

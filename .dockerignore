@@ -1,0 +1,14 @@
+.git
+.github
+tests
+training
+docs
+submission
+.venv
+.pytest_cache
+**/__pycache__
+*.pyc
+.env
+.env.*
+!model_artifacts
+!model_artifacts/**
