@@ -47,7 +47,7 @@ plugins = ["pydantic.mypy"]
 files = ["apps", "packages", "scripts"]
 # Not installed where mypy runs (CI): torch/transformers/peft (imported lazily by the GPU
 # runtime), google.* (google-genai and google-auth, imported lazily by the Vertex transport
-# and the ID-token helper in packages/) and playwright (scripts/capture_submission.py).
+# and the ID-token helper in packages/) and playwright (scripts/capture_screens.py).
 [[tool.mypy.overrides]]
 module = ["torch", "transformers", "peft", "google", "google.*", "playwright.*"]
 ignore_missing_imports = true

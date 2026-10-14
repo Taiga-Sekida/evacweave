@@ -1,4 +1,4 @@
-"""Capture reproducible EvacWeave submission PNGs from a running app.
+"""Capture reproducible EvacWeave screen PNGs from a running app.
 
 Writes 12 PNGs (the ten slides, the play page and the architecture diagram) and a
 manifest.json with each image's source and SHA-256.
@@ -6,9 +6,9 @@ manifest.json with each image's source and SHA-256.
 Example:
   python -m pip install playwright
   python -m playwright install chromium
-  python scripts/capture_submission.py --base-url http://127.0.0.1:8000
-  python scripts/capture_submission.py \
-    --base-url https://disaster-agentic-mvp-571915385983.asia-northeast1.run.app
+  python scripts/capture_screens.py --base-url http://127.0.0.1:8000
+  python scripts/capture_screens.py \
+    --base-url https://disaster-agentic-mvp-66ttczdcza-an.a.run.app
 
 No private Cloud Run credentials, model calls, or user data are involved.
 """
@@ -27,7 +27,7 @@ from urllib.parse import urlsplit
 from playwright.sync_api import Page, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-ARCHITECTURE_SOURCE = ROOT / "submission" / "architecture" / "evacweave-architecture.html"
+ARCHITECTURE_SOURCE = ROOT / "docs" / "architecture" / "evacweave-architecture.html"
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 MIN_PNG_BYTES = 10_000  # anything smaller is treated as a blank or failed screenshot
 
@@ -208,7 +208,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--out",
-        default="artifacts/submission/images",
+        default="artifacts/screens",
         help="output directory for PNG files and manifest",
     )
     parser.add_argument(

@@ -10,4 +10,4 @@
 | `evac-lab.html`・`evac-lab-*.mjs`・`evac-lab.css` | `/lab` | 2D避難ラボ（ブラウザ内で完結し、サーバーの計算もAIも使わない） |
 | `api.html` | `/api-guide` | API一覧 |
 
-画面に出す数字は、すべてサーバーのAPIが返した値（Simulation Coreの計算結果）です。画面の中で判定を作ることはしません。提出用の画像は `scripts/capture_submission.py` で自動撮影します。
+画面に出す数字は、すべてサーバーのAPIが返した値（Simulation Coreの計算結果）です。画面の中で判定を作ることはしません。画面の画像は `scripts/capture_screens.py` で自動撮影できます（Playwright）。

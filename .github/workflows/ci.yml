@@ -1,7 +1,7 @@
 name: ci
 on:
   push:
-    branches: [main, 'feat/**', 'chore/**', 'claude/**']
+    branches: [main]
   pull_request:
 permissions:
   contents: read

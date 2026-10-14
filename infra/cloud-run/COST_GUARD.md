@@ -6,7 +6,7 @@
 
 | 設定 | 公開Web/API | 非公開Vertexオーケストレータ |
 |---|---|---|
-| 公開アクセス | 可（審査用） | 不可（Cloud Run IAM） |
+| 公開アクセス | 可（ログイン不要） | 不可（Cloud Run IAM） |
 | 最小インスタンス数 | 0 | 0 |
 | サービス最大インスタンス数 | 1 | 1 |
 | 同時実行数 | 4 | 2 |
@@ -20,18 +20,15 @@
 
 公開の `POST /v1/simulate` は `PUBLIC_SIMULATION_ENABLED=0` で403を返します。公開ダッシュボードで利用する `GET /`、`GET /v1/showcase`、`GET /v1/demo/blocked`、`GET /v1/demo/repaired` は引き続き利用できます。開発者がローカルで任意の合成シナリオをテストしたい場合に限り、環境変数を `1` に設定して起動できます。これを公開サービスへ設定しないでください。
 
-## Cloud Shellから既存サービスへ適用
+## 既存サービスへの適用
+
+デプロイスクリプトは、毎回この表と同じ制限を設定します。デプロイし直さずに設定だけをそろえるときは、リポジトリのディレクトリで次を実行します。
 
 ```bash
-cd ~/google-cloud-agentic-vol5
-git fetch origin main
-git checkout --detach FETCH_HEAD
 ./scripts/apply_cloud_run_limits.sh
 ```
 
-これは既存サービスの設定変更です。非公開オーケストレータが存在する場合はそちらにも適用します。既存の公開サービスURLは維持されます。
-
-**重要:** 古いアプリには403を返す機能がありません。最新版の `apps/api/main.py` を反映するには、改めて `./scripts/deploy_cloud_run_mvp.sh` を実行してください。デプロイスクリプトも同じ制限を必ず設定するよう更新済みです。
+非公開オーケストレータがあれば、そちらにも適用します。公開サービスのURLは変わりません。
 
 ## 絶対に設定する課金側の保護
 
@@ -66,7 +63,7 @@ gcloud run services update disaster-agentic-mvp \
 
 再開は `LIVE_AI_ENABLED=1` です。回数を変えるには `LIVE_AI_DAILY_RUNS=10` のように指定します。
 
-上限はサービス全体で数えます。1人で使い切られないように、公開サービスは送り元ごとにも数えます（Geminiを使う依頼は10分に6回・1日9回まで、全員合わせて1時間15回まで。`apps/api/rate_limit.py`）。それでも使い切られた場合、その日は審査員もライブ実行できず、記録済みの実行（同じ再生検証つき）が表示されます。審査期間中にこれが起きた場合は、費用を確認したうえで `LIVE_AI_DAILY_RUNS` を一時的に上げてください。
+上限はサービス全体で数えます。1人で使い切られないように、公開サービスは送り元ごとにも数えます（Geminiを使う依頼は10分に6回・1日9回まで、全員合わせて1時間15回まで。`apps/api/rate_limit.py`）。それでも使い切られた場合、その日はライブ実行ができず、記録済みの実行（同じ再生検証つき）が表示されます。必要なら、費用を確認したうえで `LIVE_AI_DAILY_RUNS` を一時的に上げます。
 
 「AIなしで比較」と挑戦モード（`POST /v1/agent/challenge`）はモデルを呼ばず、組合せが有限（最大61通り）の答えをキャッシュするため、追加の費用はほぼありません。
 
@@ -81,7 +78,7 @@ gcloud run services update disaster-agentic-mvp \
   --scaling=0
 ```
 
-停止中は審査員も閲覧できません。復帰するには次を実行します。
+停止中は誰も閲覧できません。復帰するには次を実行します。
 
 ```bash
 gcloud run services update disaster-agentic-mvp \

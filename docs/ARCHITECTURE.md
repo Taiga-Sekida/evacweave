@@ -65,7 +65,7 @@ Coreはモデル SDK、Vertex、HTTPクライアントをimportしない（`test
 
 | サービス | 公開 | 方策 | 役割 |
 |---|---|---|---|
-| `disaster-agentic-mvp`（`apps/api`） | 認証なし | ルール方策（ライブ実行ではGeminiの結果を再検証して表示） | プレイ画面（`/`、状況を報告する・道路を壊す）と提出スライド（`/slides`）、`/v1/showcase`（エージェントの実行記録を含む）、`/v1/agent/care`（Geminiによる事情の読み取り）、`/v1/agent/care/sweep`（一括検算、AIなし）、`/v1/agent/read`（Geminiによる報告の読み取り）、`/v1/agent/live`（Geminiのライブ実行）。Vertex AIの権限を持たない |
+| `disaster-agentic-mvp`（`apps/api`） | 認証なし | ルール方策（ライブ実行ではGeminiの結果を再検証して表示） | プレイ画面（`/`、状況を報告する・道路を壊す）と仕組みの説明（`/slides`）、`/v1/showcase`（エージェントの実行記録を含む）、`/v1/agent/care`（Geminiによる事情の読み取り）、`/v1/agent/care/sweep`（一括検算、AIなし）、`/v1/agent/read`（Geminiによる報告の読み取り）、`/v1/agent/live`（Geminiのライブ実行）。Vertex AIの権限を持たない |
 | `disaster-agentic-orchestrator`（`apps/orchestrator_service`） | Cloud Run IAMのみ | Gemini（Vertex AI） | `POST /v1/agent/run`：Scenario＋Planを受け、トレースを返す。`POST /v1/care/read`：事情メモと設備を受け、避ける避難所と理由を返す。`POST /v1/report/read`：報告文と道路の一覧を受け、通れない道路のIDを返す |
 | `disaster-gemma-runtime`（`apps/gemma_service`） | 非公開（予定） | — | Gemma＋役割別アダプタで住民の行動意図を生成。未接続 |
 
